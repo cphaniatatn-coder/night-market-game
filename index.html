@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣夜市夾娃娃機 - 華語學習版</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; text-align: center; background-color: #f0f0f0; margin: 0; padding: 20px; }
+        #game-container { position: relative; width: 350px; height: 500px; background: #333; margin: 0 auto; border: 10px solid #ff4757; border-radius: 10px; overflow: hidden; }
+        
+        /* 夾爪 */
+        #claw { position: absolute; top: 0; left: 150px; width: 50px; height: 100px; background: #aaa; transition: all 1s ease; z-index: 10; }
+        #claw::after { content: '爪'; color: white; line-height: 180px; font-weight: bold; }
+        
+        /* 獎品 */
+        #prize { position: absolute; bottom: 20px; left: 140px; width: 70px; height: 70px; font-size: 50px; transition: opacity 0.5s; }
+        
+        /* UI */
+        #controls { margin-top: 20px; }
+        button { padding: 10px 20px; font-size: 18px; cursor: pointer; background: #2ed573; border: none; color: white; border-radius: 5px; }
+        #quiz-area { margin-top: 20px; display: none; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .option { display: block; width: 100%; margin: 5px 0; padding: 10px; border: 1px solid #ddd; cursor: pointer; }
+        .option:hover { background: #eccc68; }
+    </style>
+</head>
+<body>
+
+    <h1>🏮 夜市夾娃娃機</h1>
+    <p>練習你的華語，抓到好吃的食物！</p>
+
+    <div id="game-container">
+        <div id="claw"></div>
+        <div id="prize">🍢</div>
+    </div>
+
+    <div id="controls">
+        <button onclick="dropClaw()">開始下爪！</button>
+    </div>
+
+    <div id="quiz-area" id="quiz-box">
+        <h3 id="question">這是什麼？</h3>
+        <div id="options"></div>
+    </div>
+
+    <script>
+        const foods = [
+            { name: '珍珠奶茶', emoji: '🧋', options: ['珍珠奶茶', '臭豆腐', '蚵仔煎'] },
+            { name: '雞排', emoji: '🍗', options: ['香腸', '雞排', '滷肉飯'] },
+            { name: '西瓜汁', emoji: '🍉', options: ['木瓜牛奶', '西瓜汁', '芒果冰'] }
+        ];
+
+        let currentFood = {};
+
+        function dropClaw() {
+            const claw = document.getElementById('claw');
+            const prize = document.getElementById('prize');
+            
+            // 下降動畫
+            claw.style.height = '410px';
+            
+            setTimeout(() => {
+                // 抓到東西
+                currentFood = foods[Math.floor(Math.random() * foods.length)];
+                prize.innerText = currentFood.emoji;
+                
+                // 上升動畫
+                claw.style.height = '100px';
+                prize.style.bottom = '330px';
+                
+                setTimeout(showQuiz, 1000);
+            }, 1000);
+        }
+
+        function showQuiz() {
+            document.getElementById('quiz-area').style.display = 'block';
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            currentFood.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(answer) {
+            if(answer === currentFood.name) {
+                alert('太棒了！答對了！');
+            } else {
+                alert('再試一次，這是 ' + currentFood.name);
+            }
+            resetGame();
+        }
+
+        function resetGame() {
+            const prize = document.getElementById('prize');
+            prize.style.bottom = '20px';
+            prize.innerText = '❓';
+            document.getElementById('quiz-area').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
