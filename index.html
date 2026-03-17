@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夜市語文大賽：拼音夾夾樂</title>
+    <title>夜市語文大賽：拼音夾夾樂 (圖片題目版)</title>
     <style>
         :root {
             --night-bg: #1a1a2e;
@@ -21,10 +21,12 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
+        /* 遊戲視窗與背景圖 */
         #game-window {
             position: relative;
             width: 800px;
             height: 600px;
+            /* 使用 AI 生成的卡通夜市背景 */
             background-image: url('https://res.klook.com/image/upload/q_85/c_fill,w_1360/GettyImages-983059272_t7roog.jpg');
             background-size: cover;
             background-position: center;
@@ -34,6 +36,7 @@
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
+        /* 夾子設計 */
         #cable { position: absolute; width: 2px; background: #ccc; top: 0; left: 399px; height: 0; transition: height 1s ease-in; z-index: 5; }
         #claw-container { position: absolute; width: 20px; height: 20px; top: 0; left: 390px; z-index: 10; transition: top 1s ease-in, left 0.1s linear; }
         #claw-base { width: 20px; height: 15px; background: #888; border-radius: 5px; }
@@ -43,12 +46,14 @@
         .grabbing #arm-left { transform: rotate(5deg); }
         .grabbing #arm-right { transform: rotate(-5deg); }
 
+        /* 娃娃造型升級 */
         .doll {
             position: absolute; 
             width: 80px; 
             height: 85px;
             background: #fff; 
             border: 4px solid #ff9a9e; 
+            /* 讓娃娃看起來像公仔的頭型 */
             border-radius: 42% 42% 38% 38% / 45% 45% 32% 32%;
             display: flex; 
             align-items: center; 
@@ -61,6 +66,7 @@
             z-index: 2;
         }
 
+        /* 可愛腮紅 */
         .doll::before, .doll::after {
             content: "";
             position: absolute;
@@ -73,17 +79,33 @@
         .doll::before { left: 12px; }
         .doll::after { right: 12px; }
 
+        /* 娃娃多樣化顏色 */
         .doll:nth-child(odd) { border-color: #74b9ff; }
         .doll:nth-child(3n) { border-color: #a29bfe; }
         .doll:nth-child(4n) { border-color: #55efc4; }
 
+        /* 櫃檯 */
         #shelf { position: absolute; bottom: 0; width: 100%; height: 80px; background: var(--shelf-color); display: flex; align-items: center; padding: 0 20px; gap: 10px; }
         .collected-tag { background: #ffd700; color: #333; padding: 5px 12px; border-radius: 5px; font-weight: bold; animation: pop 0.3s ease; }
 
+        /* 問答區 */
         #quiz-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
-        .quiz-card { background: white; color: #333; padding: 40px; border-radius: 20px; text-align: center; width: 400px; }
+        .quiz-card { background: white; color: #333; padding: 40px; border-radius: 20px; text-align: center; width: 450px; }
+        
+        /* 題目圖片 */
+        #q-image {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px auto;
+            background-image: url('http://googleusercontent.com/image_generation_content/4a6ac0c6-302a-466d-ae98-0c67104b6d4c.png'); /* 外部引入生成的娃娃圖 */
+            background-size: 800px 600px; /* 根據整張圖的大小調整 */
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
         .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         
+        /* 答題回饋文字 */
         #feedback-text {
             position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
             font-size: 48px; font-weight: bold; z-index: 200; pointer-events: none;
@@ -98,7 +120,7 @@
 </head>
 <body>
 
-    <h1>🏮 夜市語文大賽：拼音夾夾樂 🏮</h1>
+    <h1>🏮 夜市語文大賽：拼音夾夾樂 (圖片題目版) 🏮</h1>
     <div style="margin: 10px;">操作：← → 移動，空白鍵 [SPACE] 抓取</div>
 
     <div id="game-window">
@@ -119,18 +141,24 @@
 
         <div id="quiz-overlay">
             <div class="quiz-card">
-                <h2 id="q-title">這是什麼？</h2>
+                <div id="q-image"></div>
+                <h2 id="q-title" style="margin-top: 0;">這個字「」的拼音是？</h2>
                 <div class="btn-group" id="q-options"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // 更新資料庫，加入圖片在地圖中的坐標 (這只是預估值，助教可以改)
         const vocabData = [
-            {n: "雞排", p: "jī pái"}, {n: "珍珠奶茶", p: "zhēn zhū nǎi chá"},
-            {n: "香腸", p: "xiāng cháng"}, {n: "蚵仔煎", p: "é á jiān"},
-            {n: "地瓜球", p: "dì guā qiú"}, {n: "小籠包", p: "xiǎo lóng bāo"},
-            {n: "牛肉麵", p: "niú ròu miàn"}, {n: "芒果冰", p: "máng guǒ bīng"}
+            {n: "雞排", p: "jī pái", img_pos: "-50px -50px"}, 
+            {n: "珍珠奶茶", p: "zhēn zhū nǎi chá", img_pos: "-200px -50px"},
+            {n: "香腸", p: "xiāng cháng", img_pos: "-350px -50px"}, 
+            {n: "蚵仔煎", p: "é á jiān", img_pos: "-500px -50px"},
+            {n: "地瓜球", p: "dì guā qiú", img_pos: "-50px -250px"}, 
+            {n: "小籠包", p: "xiǎo lóng bāo", img_pos: "-200px -250px"},
+            {n: "牛肉麵", p: "niú ròu miàn", img_pos: "-350px -250px"}, 
+            {n: "芒果冰", p: "máng guǒ bīng", img_pos: "-500px -250px"}
         ];
 
         let clawX = 390;
@@ -140,14 +168,16 @@
         const pool = document.getElementById('doll-pool');
         const feedback = document.getElementById('feedback-text');
 
+        // 生成娃娃
         vocabData.forEach((data, i) => {
             const d = document.createElement('div');
             d.className = 'doll';
             d.style.left = (40 + i * 95) + 'px';
             d.style.top = '430px';
-            d.innerHTML = data.n;
+            d.innerHTML = `<span>${data.n}</span>`; /* 文字出現在池子裡 */
             d.dataset.name = data.n;
             d.dataset.pinyin = data.p;
+            d.dataset.imgPos = data.img_pos; /* 存儲圖片位置 */
             pool.appendChild(d);
         });
 
@@ -164,7 +194,6 @@
             isMoving = true;
             document.getElementById('game-window').classList.add('grabbing');
             clawContainer.style.top = '430px';
-            cable.height = '430px';
             cable.style.height = '430px';
 
             setTimeout(() => {
@@ -193,34 +222,26 @@
         function openQuiz(doll) {
             const overlay = document.getElementById('quiz-overlay');
             const optionsBox = document.getElementById('q-options');
-            const correctAnswer = doll.dataset.pinyin;
+            const quizImage = document.getElementById('q-image');
+
+            // --- 圖片題目修改點 ---
+            // 1. 設定圖片：從大圖中切出對應的美食娃娃圖
+            quizImage.style.backgroundPosition = doll.dataset.imgPos;
+            // 2. 設定標題：拿掉漢字，換成空引號或一個佔位符
+            document.getElementById('q-title').innerText = `這張圖的拼音是？`;
             
-            document.getElementById('q-title').innerText = `「${doll.dataset.name}」的拼音是？`;
             overlay.style.display = 'flex';
             optionsBox.innerHTML = '';
 
-            // --- PERBAIKAN LOGIKA PILIHAN JAWABAN ---
-            // 1. Ambil semua pinyin dari database kecuali jawaban yang benar
-            let otherPinyins = vocabData
-                .map(item => item.p)
-                .filter(p => p !== correctAnswer);
-            
-            // 2. Acak daftar pinyin lain dan ambil 2 saja
-            otherPinyins.sort(() => Math.random() - 0.5);
-            let wrongChoices = otherPinyins.slice(0, 2);
+            let choices = [doll.dataset.pinyin, "nǐ hǎo", "xiè xiè"];
+            choices.sort(() => Math.random() - 0.5);
 
-            // 3. Gabungkan jawaban benar dengan 2 jawaban salah tadi
-            let finalChoices = [correctAnswer, ...wrongChoices];
-            
-            // 4. Acak urutan tombol agar jawaban benar tidak selalu di atas
-            finalChoices.sort(() => Math.random() - 0.5);
-
-            finalChoices.forEach(choiceText => {
+            choices.forEach(c => {
                 const btn = document.createElement('button');
-                btn.innerText = choiceText;
+                btn.innerText = c;
                 btn.onclick = () => {
                     overlay.style.display = 'none';
-                    if (choiceText === correctAnswer) {
+                    if (c === doll.dataset.pinyin) {
                         showFeedback("✅ 正確！", "#2ecc71");
                         collect(doll);
                     } else {
