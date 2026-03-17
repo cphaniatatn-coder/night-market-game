@@ -3,102 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台灣夜市夾娃娃機 - 華語學習版</title>
+    <title>夜市大亨 - 華語學習版</title>
     <style>
-        body { font-family: 'Arial', sans-serif; text-align: center; background-color: #f0f0f0; margin: 0; padding: 20px; }
-        #game-container { position: relative; width: 350px; height: 500px; background: #333; margin: 0 auto; border: 10px solid #ff4757; border-radius: 10px; overflow: hidden; }
+        body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; background-color: #1a1a2e; color: white; margin: 0; }
+        h1 { color: #eccc68; margin-top: 20px; }
         
-        /* 夾爪 */
-        #claw { position: absolute; top: 0; left: 150px; width: 50px; height: 100px; background: #aaa; transition: all 1s ease; z-index: 10; }
-        #claw::after { content: '爪'; color: white; line-height: 180px; font-weight: bold; }
+        /* 地圖容器 */
+        #board { 
+            display: grid; 
+            grid-template-columns: repeat(4, 80px); 
+            grid-template-rows: repeat(4, 80px); 
+            gap: 10px; 
+            justify-content: center; 
+            margin: 20px auto; 
+            position: relative;
+        }
         
-        /* 獎品 */
-        #prize { position: absolute; bottom: 20px; left: 140px; width: 70px; height: 70px; font-size: 50px; transition: opacity 0.5s; }
-        
+        .cell { 
+            width: 80px; height: 80px; 
+            background: #16213e; 
+            border: 2px solid #485460; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 30px; 
+            border-radius: 10px;
+            position: relative;
+        }
+
+        /* 玩家棋子 */
+        #player { 
+            width: 40px; height: 40px; 
+            background: #ff4757; 
+            border-radius: 50%; 
+            position: absolute; 
+            transition: all 0.5s ease; 
+            z-index: 10; 
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.8);
+        }
+
+        .active { border-color: #eccc68; background: #2f3542; }
+
         /* UI */
-        #controls { margin-top: 20px; }
-        button { padding: 10px 20px; font-size: 18px; cursor: pointer; background: #2ed573; border: none; color: white; border-radius: 5px; }
-        #quiz-area { margin-top: 20px; display: none; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .option { display: block; width: 100%; margin: 5px 0; padding: 10px; border: 1px solid #ddd; cursor: pointer; }
-        .option:hover { background: #eccc68; }
+        #ui-area { margin-top: 30px; }
+        button { 
+            padding: 15px 30px; font-size: 20px; cursor: pointer; 
+            background: #eccc68; border: none; border-radius: 50px; font-weight: bold;
+        }
+        #message { margin-top: 20px; font-size: 22px; color: #74b9ff; height: 30px; }
+        
+        /* 彈窗問題 */
+        #quiz-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 20; justify-content: center; align-items: center;
+        }
+        .quiz-card { background: white; color: #333; padding: 30px; border-radius: 20px; width: 80%; max-width: 300px; }
+        .opt-btn { display: block; width: 100%; margin: 10px 0; padding: 10px; background: #f1f2f6; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h1>🏮 夜市夾娃娃機</h1>
-    <p>練習你的華語，抓到好吃的食物！</p>
+    <h1>🏮 夜市大亨：美食冒險</h1>
+    <p>擲骰子，逛夜市，學中文！</p>
 
-    <div id="game-container">
-        <div id="claw"></div>
-        <div id="prize">🍢</div>
+    <div id="board">
+        <div id="player"></div>
+        <div class="cell" id="c0">🏠</div>
+        <div class="cell" id="c1">🍗</div>
+        <div class="cell" id="c2">🧋</div>
+        <div class="cell" id="c3">🌭</div>
+        <div class="cell" id="c11">🍦</div>
+        <div class="cell" style="border:none"></div><div class="cell" style="border:none"></div>
+        <div class="cell" id="c4">🍲</div>
+        <div class="cell" id="c10">🍜</div>
+        <div class="cell" style="border:none"></div><div class="cell" style="border:none"></div>
+        <div class="cell" id="c5">🍢</div>
+        <div class="cell" id="c9">🥭</div>
+        <div class="cell" id="c8">🥟</div>
+        <div class="cell" id="c7">🧇</div>
+        <div class="cell" id="c6">🥤</div>
     </div>
 
-    <div id="controls">
-        <button onclick="dropClaw()">開始下爪！</button>
+    <div id="ui-area">
+        <button onclick="rollDice()">🎲 擲骰子！</button>
+        <div id="message">點擊按鈕開始</div>
     </div>
 
-    <div id="quiz-area" id="quiz-box">
-        <h3 id="question">這是什麼？</h3>
-        <div id="options"></div>
+    <div id="quiz-overlay">
+        <div class="quiz-card">
+            <h2 id="q-emoji">🍢</h2>
+            <p id="q-text">這是什麼？</p>
+            <div id="q-options"></div>
+        </div>
     </div>
 
     <script>
-        const foods = [
-            { name: '珍珠奶茶', emoji: '🧋', options: ['珍珠奶茶', '臭豆腐', '蚵仔煎'] },
-            { name: '雞排', emoji: '🍗', options: ['香腸', '雞排', '滷肉飯'] },
-            { name: '西瓜汁', emoji: '🍉', options: ['木瓜牛奶', '西瓜汁', '芒果冰'] }
-        ];
+        // 定義格子路徑 (對應 HTML 的 ID)
+        const path = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        const foodData = {
+            1: { name: '雞排', emoji: '🍗', opts: ['雞排', '牛排', '豬排'] },
+            2: { name: '珍珠奶茶', emoji: '🧋', opts: ['綠茶', '珍珠奶茶', '咖啡'] },
+            3: { name: '香腸', emoji: '🌭', opts: ['香腸', '漢堡', '熱狗'] },
+            4: { name: '蚵仔煎', emoji: '🍲', opts: ['火鍋', '蚵仔煎', '牛肉麵'] },
+            5: { name: '甜不辣', emoji: '🍢', opts: ['甜不辣', '臭豆腐', '豬血糕'] },
+            6: { name: '木瓜牛奶', emoji: '🥤', opts: ['可樂', '水', '木瓜牛奶'] },
+            8: { name: '小籠包', emoji: '🥟', opts: ['饅頭', '小籠包', '水餃'] }
+        };
 
-        let currentFood = {};
+        let currentPos = 0;
 
-        function dropClaw() {
-            const claw = document.getElementById('claw');
-            const prize = document.getElementById('prize');
-            
-            // 下降動畫
-            claw.style.height = '410px';
-            
-            setTimeout(() => {
-                // 抓到東西
-                currentFood = foods[Math.floor(Math.random() * foods.length)];
-                prize.innerText = currentFood.emoji;
-                
-                // 上升動畫
-                claw.style.height = '100px';
-                prize.style.bottom = '330px';
-                
-                setTimeout(showQuiz, 1000);
-            }, 1000);
+        function updatePlayerUI() {
+            const cell = document.getElementById('c' + path[currentPos]);
+            const player = document.getElementById('player');
+            player.style.left = (cell.offsetLeft + 20) + 'px';
+            player.style.top = (cell.offsetTop + 20) + 'px';
         }
 
-        function showQuiz() {
-            document.getElementById('quiz-area').style.display = 'block';
-            const optionsDiv = document.getElementById('options');
-            optionsDiv.innerHTML = '';
+        // 初始化位置
+        window.onload = updatePlayerUI;
+
+        function rollDice() {
+            const steps = Math.floor(Math.random() * 3) + 1; // 隨機走 1-3 步
+            document.getElementById('message').innerText = '你走了 ' + steps + ' 步！';
             
-            currentFood.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'option';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(opt);
-                optionsDiv.appendChild(btn);
-            });
+            let count = 0;
+            let moveInterval = setInterval(() => {
+                currentPos = (currentPos + 1) % path.length;
+                updatePlayerUI();
+                count++;
+                if (count === steps) {
+                    clearInterval(moveInterval);
+                    setTimeout(checkSquare, 600);
+                }
+            }, 300);
         }
 
-        function checkAnswer(answer) {
-            if(answer === currentFood.name) {
-                alert('太棒了！答對了！');
+        function checkSquare() {
+            const food = foodData[currentPos];
+            if (food) {
+                showQuiz(food);
             } else {
-                alert('再試一次，這是 ' + currentFood.name);
+                document.getElementById('message').innerText = '起點休息一下！';
             }
-            resetGame();
         }
 
-        function resetGame() {
-            const prize = document.getElementById('prize');
-            prize.style.bottom = '20px';
-            prize.innerText = '❓';
-            document.getElementById('quiz-area').style.display = 'none';
+        function showQuiz(food) {
+            document.getElementById('quiz-overlay').style.display = 'flex';
+            document.getElementById('q-emoji').innerText = food.emoji;
+            const optDiv = document.getElementById('q-options');
+            optDiv.innerHTML = '';
+            
+            food.opts.forEach(o => {
+                const b = document.createElement('button');
+                b.className = 'opt-btn';
+                b.innerText = o;
+                b.onclick = () => {
+                    if (o === food.name) alert('答對了！你真棒！');
+                    else alert('這是 ' + food.name);
+                    document.getElementById('quiz-overlay').style.display = 'none';
+                };
+                optDiv.appendChild(b);
+            });
         }
     </script>
 </body>
