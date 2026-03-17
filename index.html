@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夜市大亨 - 華語學習版</title>
+    <title>夜市大亨 - 華語教學版</title>
     <style>
         body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; background-color: #1a1a2e; color: white; margin: 0; overflow: hidden; }
         h1 { color: #eccc68; margin: 15px 0; font-size: 24px; }
@@ -48,31 +48,28 @@
             background: #eccc68; border: none; border-radius: 50px; color: #1a1a2e; font-weight: bold;
             box-shadow: 0 4px 0 #b8973d;
         }
-        button#dice-btn:active { transform: translateY(3px); box-shadow: none; }
         #message { margin-top: 15px; font-size: 18px; color: #74b9ff; height: 25px; }
         
-        /* 彈窗：問題介面 */
+        /* 彈窗背景 */
         .overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 20; justify-content: center; align-items: center;
         }
-        .card { background: white; color: #333; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; }
+        .card { background: white; color: #333; padding: 25px; border-radius: 20px; width: 85%; max-width: 300px; }
         .opt-btn { 
             display: block; width: 100%; margin: 12px 0; padding: 12px; 
             background: #f1f2f6; border: 2px solid #ddd; border-radius: 10px; 
             font-size: 18px; cursor: pointer; font-weight: bold;
         }
 
-        /* 彈窗：結果介面 */
-        #result-overlay { z-index: 30; }
-        .result-content { text-align: center; }
+        /* 結果頁面樣式 */
         .result-icon { font-size: 80px; margin-bottom: 10px; }
         .result-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
         .correct { color: #2ed573; }
         .wrong { color: #ff4757; }
         .next-btn { 
-            padding: 10px 30px; background: #333; color: white; border: none; 
-            border-radius: 5px; font-size: 18px; cursor: pointer;
+            padding: 12px 30px; background: #333; color: white; border: none; 
+            border-radius: 8px; font-size: 18px; cursor: pointer; width: 100%;
         }
     </style>
 </head>
@@ -94,28 +91,28 @@
         <div class="cell" id="c5">🍢</div>
         <div class="cell" id="c9">🥭</div>
         <div class="cell" id="c8">🥟</div>
-        <div class="cell" id="c7"> waffle </div>
+        <div class="cell" id="c7">🍡</div>
         <div class="cell" id="c6">🥤</div>
     </div>
 
     <div id="ui-area">
         <button id="dice-btn" onclick="rollDice()">🎲 擲骰子！</button>
-        <div id="message">準備好逛街了嗎？</div>
+        <div id="message">點擊骰子開始遊戲</div>
     </div>
 
     <div id="quiz-overlay" class="overlay">
         <div class="card">
-            <h2 id="q-emoji" style="font-size: 60px; margin: 0;">🍢</h2>
+            <h2 id="q-emoji" style="font-size: 60px; margin: 0;"></h2>
             <p id="q-text" style="font-size: 20px;">這是什麼？</p>
             <div id="q-options"></div>
         </div>
     </div>
 
     <div id="result-overlay" class="overlay">
-        <div class="card result-content">
-            <div id="res-icon" class="result-icon">✅</div>
-            <div id="res-text" class="result-text">答對了！</div>
-            <p id="res-detail" style="color: #666;"></p>
+        <div class="card">
+            <div id="res-icon" class="result-icon"></div>
+            <div id="res-text" class="result-text"></div>
+            <p id="res-detail" style="color: #666; margin-bottom: 20px; font-size: 18px;"></p>
             <button class="next-btn" onclick="closeResult()">繼續前進</button>
         </div>
     </div>
@@ -129,7 +126,7 @@
             4: { name: '蚵仔煎', emoji: '🍲', opts: ['火鍋', '蚵仔煎', '牛肉麵'] },
             5: { name: '甜不辣', emoji: '🍢', opts: ['甜不辣', '臭豆腐', '豬血糕'] },
             6: { name: '木瓜牛奶', emoji: '🥤', opts: ['可樂', '水', '木瓜牛奶'] },
-            7: { name: '地瓜球', emoji: '🧇', opts: ['地瓜球', '鬆餅', '麵包'] },
+            7: { name: '地瓜球', emoji: '🍡', opts: ['地瓜球', '鬆餅', '糖葫蘆'] },
             8: { name: '小籠包', emoji: '🥟', opts: ['饅頭', '小籠包', '水餃'] },
             9: { name: '芒果冰', emoji: '🥭', opts: ['香蕉', '芒果冰', '西瓜'] },
             10: { name: '牛肉麵', emoji: '🍜', opts: ['牛肉麵', '拉麵', '義大利麵'] },
@@ -148,6 +145,7 @@
         window.onload = updatePlayerUI;
 
         function rollDice() {
+            document.getElementById('dice-btn').disabled = true;
             const steps = Math.floor(Math.random() * 3) + 1;
             document.getElementById('message').innerText = '骰子點數：' + steps;
             
@@ -168,7 +166,8 @@
             if (food) {
                 showQuiz(food);
             } else {
-                document.getElementById('message').innerText = '回到起點，休息一下！';
+                document.getElementById('message').innerText = '回到起點囉！';
+                document.getElementById('dice-btn').disabled = false;
             }
         }
 
@@ -188,7 +187,9 @@
         }
 
         function handleAnswer(selected, correct) {
+            // 隱藏問題畫面
             document.getElementById('quiz-overlay').style.display = 'none';
+            
             const resOverlay = document.getElementById('result-overlay');
             const resIcon = document.getElementById('res-icon');
             const resText = document.getElementById('res-text');
@@ -198,20 +199,21 @@
             
             if (selected === correct) {
                 resIcon.innerText = '✅';
-                resText.innerText = '太棒了！答對了！';
+                resText.innerText = '答對了！';
                 resText.className = 'result-text correct';
-                resDetail.innerText = '你對「' + correct + '」很了解喔！';
+                resDetail.innerText = '你真棒，這就是「' + correct + '」。';
             } else {
                 resIcon.innerText = '❌';
-                resText.innerText = '可惜答錯了...';
+                resText.innerText = '答錯了...';
                 resText.className = 'result-text wrong';
-                resDetail.innerText = '這個是「' + correct + '」才對。';
+                resDetail.innerText = '別灰心，正確答案是「' + correct + '」。';
             }
         }
 
         function closeResult() {
             document.getElementById('result-overlay').style.display = 'none';
-            document.getElementById('message').innerText = '準備下一次擲骰子！';
+            document.getElementById('dice-btn').disabled = false;
+            document.getElementById('message').innerText = '點擊骰子繼續前進！';
         }
     </script>
 </body>
