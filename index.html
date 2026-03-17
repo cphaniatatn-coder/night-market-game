@@ -45,14 +45,43 @@
         .grabbing #arm-left { transform: rotate(5deg); }
         .grabbing #arm-right { transform: rotate(-5deg); }
 
-        /* 娃娃池 */
+        /* --- 娃娃造型升級 --- */
         .doll {
-            position: absolute; width: 80px; height: 80px;
-            background: #fff; border: 3px solid #ff9a9e; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: #333; font-weight: bold; font-size: 14px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.3); transition: top 1s ease-in;
+            position: absolute; 
+            width: 80px; 
+            height: 85px;
+            background: #fff; 
+            border: 4px solid #ff9a9e; 
+            /* 讓娃娃看起來像公仔的頭型 */
+            border-radius: 42% 42% 38% 38% / 45% 45% 32% 32%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #333; 
+            font-weight: bold; 
+            font-size: 15px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2); 
+            transition: top 1s ease-in;
+            z-index: 2;
         }
+
+        /* 可愛腮紅 */
+        .doll::before, .doll::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 6px;
+            background: #ffdbdb;
+            border-radius: 50%;
+            bottom: 25px;
+        }
+        .doll::before { left: 12px; }
+        .doll::after { right: 12px; }
+
+        /* 娃娃多樣化顏色 */
+        .doll:nth-child(odd) { border-color: #74b9ff; }
+        .doll:nth-child(3n) { border-color: #a29bfe; }
+        .doll:nth-child(4n) { border-color: #55efc4; }
 
         /* 櫃檯 */
         #shelf { position: absolute; bottom: 0; width: 100%; height: 80px; background: var(--shelf-color); display: flex; align-items: center; padding: 0 20px; gap: 10px; }
