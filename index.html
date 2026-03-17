@@ -2,143 +2,289 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>夜市拼音夾夾樂</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夜市語文大賽：拼音夾夾樂</title>
     <style>
-        body { text-align: center; background: #1a1a2e; color: white; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden; }
-        #game-container { position: relative; width: 800px; height: 600px; margin: 20px auto; background: #222; border: 10px solid #555; overflow: hidden; }
-        
-        /* 爪子 */
-        #claw { position: absolute; width: 60px; height: 40px; background: #aaa; top: 0; left: 370px; z-index: 10; transition: top 1s ease-in; }
-        #cable { position: absolute; width: 4px; background: #eee; top: 0; left: 398px; height: 0; }
+        :root {
+            --night-bg: #1a1a2e;
+            --shelf-color: #5d4037;
+            --neon-pink: #ff00ff;
+        }
 
-        /* 娃娃 */
-        .doll { position: absolute; width: 70px; height: 70px; background: #ff9a9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #333; font-weight: bold; cursor: pointer; transition: all 0.5s; }
-        
+        body {
+            margin: 0;
+            background-color: var(--night-bg);
+            color: white;
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin: 10px; text-shadow: 0 0 10px var(--neon-pink); }
+
+        /* 遊戲容器（夜市背景） */
+        #game-window {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(to bottom, #16213e, #0f3460);
+            border: 8px solid #444;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* 鋼索 */
+        #cable {
+            position: absolute;
+            width: 2px;
+            background: #ccc;
+            top: 0;
+            left: 399px;
+            height: 0;
+            transition: height 1s ease-in;
+            z-index: 5;
+        }
+
+        /* 夾子本體 */
+        #claw-container {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 390px;
+            z-index: 10;
+            transition: top 1s ease-in, left 0.1s linear;
+        }
+
+        #claw-base { width: 20px; height: 15px; background: #888; border-radius: 5px; }
+
+        /* 夾子雙臂 (一般的夾子外型) */
+        .arm {
+            position: absolute;
+            width: 8px;
+            height: 50px;
+            background: #aaa;
+            border-radius: 5px;
+            top: 10px;
+            transition: transform 0.3s;
+            transform-origin: top center;
+        }
+        #arm-left { left: -5px; transform: rotate(30deg); }
+        #arm-right { right: -5px; transform: rotate(-30deg); }
+
+        /* 抓取時合攏效果 */
+        .grabbing #arm-left { transform: rotate(5deg); }
+        .grabbing #arm-right { transform: rotate(-5deg); }
+
+        /* 娃娃池 */
+        .doll {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: #f8ad9d;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            transition: top 1s ease-in;
+        }
+
         /* 櫃檯 */
-        #shelf { position: absolute; width: 100%; height: 80px; background: #8b4513; bottom: 0; display: flex; align-items: center; padding: 10px; gap: 10px; }
-        .collected { width: 50px; height: 50px; background: #ffd700; border-radius: 10px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        #shelf {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: var(--shelf-color);
+            border-top: 5px solid #3e2723;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 15px;
+        }
+        .collected-tag { font-size: 14px; background: #ffd700; color: #333; padding: 5px 10px; border-radius: 5px; }
 
         /* 問答視窗 */
-        #quiz-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; }
-        .quiz-box { background: white; color: #333; padding: 30px; border-radius: 20px; text-align: center; }
-        .options button { margin: 10px; padding: 10px 20px; cursor: pointer; border-radius: 10px; border: 2px solid #333; }
+        #quiz-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .quiz-card {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+        .btn-group { display: flex; gap: 20px; margin-top: 20px; }
+        button {
+            padding: 10px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            border: none;
+            background: #0f3460;
+            color: white;
+            transition: 0.2s;
+        }
+        button:hover { background: #e94560; }
+
+        .hint { margin-top: 15px; font-size: 0.9em; color: #666; }
     </style>
 </head>
 <body>
 
     <h1>🏮 夜市拼音夾夾樂 🏮</h1>
-    <p>使用 ← → 鍵移動爪子，空白鍵 [SPACE] 抓取娃娃！</p>
+    <div style="margin-bottom: 10px;">操作：← → 移動，空白鍵 [SPACE] 抓取</div>
 
-    <div id="game-container">
+    <div id="game-window">
         <div id="cable"></div>
-        <div id="claw"></div>
+        <div id="claw-container">
+            <div id="claw-base"></div>
+            <div id="arm-left" class="arm"></div>
+            <div id="arm-right" class="arm"></div>
+        </div>
+
         <div id="doll-pool"></div>
-        <div id="shelf">櫃檯：</div>
-        
+
+        <div id="shelf">
+            <span style="font-weight: bold; margin-right: 10px;">我的戰利品：</span>
+        </div>
+
         <div id="quiz-overlay">
-            <div class="quiz-box">
-                <h2 id="question">這是什麼？</h2>
-                <div class="options" id="options"></div>
+            <div class="quiz-card">
+                <h2 id="q-title">這是什麼？</h2>
+                <div class="btn-group" id="q-options"></div>
+                <div class="hint">提示：請選擇正確的拼音</div>
             </div>
         </div>
     </div>
 
     <script>
-        const vocab = [
-            {n: "雞排", p: "jī pái"}, {n: "珍珠奶茶", p: "zhēn zhū nǎi chá"},
+        const vocabData = [
+            {n: "雞排", p: "jī pái"}, {n: "珍奶", p: "zhēn nǎi"},
             {n: "香腸", p: "xiāng cháng"}, {n: "蚵仔煎", p: "é á jiān"},
-            {n: "地瓜球", p: "dì guā qiú"}, {n: "小籠包", p: "xiǎo lóng bāo"}
+            {n: "地瓜球", p: "dì guā qiú"}, {n: "小籠包", p: "xiǎo lóng bāo"},
+            {n: "牛肉麵", p: "niú ròu miàn"}, {n: "芒果冰", p: "máng guǒ bīng"}
         ];
 
-        let clawX = 370;
-        let isGrabbing = false;
-        let currentDoll = null;
-
-        const claw = document.getElementById('claw');
+        let clawX = 390;
+        let isMoving = false;
+        const clawContainer = document.getElementById('claw-container');
         const cable = document.getElementById('cable');
         const pool = document.getElementById('doll-pool');
 
-        // 生成娃娃
-        vocab.forEach((item, index) => {
-            let d = document.createElement('div');
+        // 初始化娃娃
+        vocabData.forEach((data, i) => {
+            const d = document.createElement('div');
             d.className = 'doll';
-            d.innerHTML = item.n;
-            d.style.left = (100 + index * 120) + 'px';
-            d.style.top = '450px';
-            d.dataset.name = item.n;
-            d.dataset.pinyin = item.p;
+            d.id = `doll-${i}`;
+            d.style.left = (50 + i * 90) + 'px';
+            d.style.top = '430px';
+            d.innerHTML = `<span>${data.n}</span>`;
+            d.dataset.name = data.n;
+            d.dataset.pinyin = data.p;
             pool.appendChild(d);
         });
 
         // 鍵盤控制
         window.addEventListener('keydown', (e) => {
-            if (isGrabbing) return;
-            if (e.key === 'ArrowLeft' && clawX > 0) clawX -= 20;
-            if (e.key === 'ArrowRight' && clawX < 740) clawX += 20;
-            if (e.key === ' ') startGrab();
-            
-            claw.style.left = clawX + 'px';
-            cable.style.left = (clawX + 28) + 'px';
+            if (isMoving) return;
+            if (e.key === 'ArrowLeft' && clawX > 20) clawX -= 15;
+            if (e.key === 'ArrowRight' && clawX < 740) clawX += 15;
+            if (e.key === ' ') startCatch();
+
+            clawContainer.style.left = clawX + 'px';
+            cable.style.left = (clawX + 9) + 'px';
         });
 
-        function startGrab() {
-            isGrabbing = true;
-            claw.style.top = '450px';
-            cable.style.height = '450px';
+        function startCatch() {
+            isMoving = true;
+            document.getElementById('game-window').classList.add('grabbing');
+            
+            // 下降
+            clawContainer.style.top = '430px';
+            cable.style.height = '430px';
 
             setTimeout(() => {
-                checkCollision();
-                claw.style.top = '0px';
+                // 檢查碰撞
+                let caughtDoll = null;
+                document.querySelectorAll('.doll').forEach(d => {
+                    let dx = parseInt(d.style.left);
+                    if (Math.abs(dx - clawX) < 40) caughtDoll = d;
+                });
+
+                if (caughtDoll) {
+                    // 抓到娃娃跟著上升
+                    caughtDoll.style.transition = 'top 1s ease-in';
+                    caughtDoll.style.top = '30px';
+                    caughtDoll.style.left = clawX + 'px';
+                }
+
+                // 上升
+                clawContainer.style.top = '0px';
                 cable.style.height = '0px';
-                setTimeout(() => { isGrabbing = false; }, 1000);
+
+                setTimeout(() => {
+                    document.getElementById('game-window').classList.remove('grabbing');
+                    if (caughtDoll) {
+                        openQuiz(caughtDoll);
+                    } else {
+                        isMoving = false;
+                    }
+                }, 1000);
             }, 1000);
         }
 
-        function checkCollision() {
-            const dolls = document.querySelectorAll('.doll');
-            dolls.forEach(d => {
-                let dx = parseInt(d.style.left);
-                if (Math.abs(dx - clawX) < 40) {
-                    triggerQuiz(d);
-                }
-            });
-        }
-
-        function triggerQuiz(dollElement) {
-            currentDoll = dollElement;
+        function openQuiz(doll) {
             const overlay = document.getElementById('quiz-overlay');
-            const optionsDiv = document.getElementById('options');
-            document.getElementById('question').innerText = `請選擇「${dollElement.dataset.name}」的正確拼音`;
+            const optionsBox = document.getElementById('q-options');
+            document.getElementById('q-title').innerText = `這個字「${doll.dataset.name}」怎麼念？`;
             
             overlay.style.display = 'flex';
-            optionsDiv.innerHTML = '';
+            optionsBox.innerHTML = '';
 
-            // 隨機產生選項 (包含正確答案)
-            let choices = [dollElement.dataset.pinyin, "nǐ hǎo", "xiè xiè"];
+            // 產生選項
+            let choices = [doll.dataset.pinyin, "nǐ hǎo", "xiè xiè"];
             choices.sort(() => Math.random() - 0.5);
 
             choices.forEach(c => {
-                let btn = document.createElement('button');
+                const btn = document.createElement('button');
                 btn.innerText = c;
                 btn.onclick = () => {
-                    if (c === dollElement.dataset.pinyin) {
-                        alert("✅ 答對了！放入櫃檯。");
-                        addToShelf(dollElement);
+                    if (c === doll.dataset.pinyin) {
+                        alert("🎉 太棒了！抓到戰利品了！");
+                        collect(doll);
                     } else {
-                        alert("❌ 答錯了！娃娃跳回池子。");
+                        alert("❌ 喔不！娃娃掉回池子裡了。");
+                        doll.style.top = '430px'; // 答錯跳回
                     }
                     overlay.style.display = 'none';
+                    isMoving = false;
                 };
-                optionsDiv.appendChild(btn);
+                optionsBox.appendChild(btn);
             });
         }
 
-        function addToShelf(doll) {
+        function collect(doll) {
             const shelf = document.getElementById('shelf');
-            let item = document.createElement('div');
-            item.className = 'collected';
-            item.innerHTML = doll.dataset.name;
-            shelf.appendChild(item);
+            const tag = document.createElement('div');
+            tag.className = 'collected-tag';
+            tag.innerText = doll.dataset.name;
+            shelf.appendChild(tag);
             doll.remove();
         }
     </script>
