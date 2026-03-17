@@ -19,8 +19,10 @@
             color: white;
             font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
             display: flex; flex-direction: column; align-items: center;
+            overflow: hidden;
         }
 
+        /* 遊戲視窗 */
         #game-window {
             position: relative;
             width: 800px;
@@ -43,70 +45,75 @@
         .grabbing #arm-left { transform: rotate(5deg); }
         .grabbing #arm-right { transform: rotate(-5deg); }
 
-        /* 娃娃樣式 */
         .doll {
-            position: absolute; 
-            width: 80px; 
-            height: 85px;
-            background: #fff; 
-            border: 4px solid #ff9a9e; 
+            position: absolute; width: 80px; height: 85px;
+            background: #fff; border: 4px solid #ff9a9e; 
             border-radius: 42% 42% 38% 38% / 45% 45% 32% 32%;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2); 
-            transition: top 1s ease-in;
-            z-index: 2;
-            overflow: hidden; /* 確保圖片不超出 */
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2); transition: top 1s ease-in;
+            z-index: 2; overflow: hidden;
         }
-
-        /* 娃娃內的圖片 */
-        .doll img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .doll img { width: 100%; height: 100%; object-fit: cover; }
 
         #shelf { position: absolute; bottom: 0; width: 100%; height: 80px; background: var(--shelf-color); display: flex; align-items: center; padding: 0 20px; gap: 10px; }
         .collected-tag { background: #ffd700; color: #333; padding: 5px 12px; border-radius: 5px; font-weight: bold; animation: pop 0.3s ease; }
 
+        /* 問答視窗 */
         #quiz-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
         .quiz-card { background: white; color: #333; padding: 30px; border-radius: 20px; text-align: center; width: 400px; }
-        
-        /* 題目圖片樣式 */
         #q-img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
 
+        /* 恭喜通關頁面 */
+        #win-screen {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 26, 46, 0.95); z-index: 1000;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; animation: fadeIn 1s;
+        }
+        #win-screen h1 { font-size: 60px; color: #ffd700; text-shadow: 0 0 20px #ff0; margin-bottom: 20px; }
+        #win-screen p { font-size: 32px; color: #fff; font-weight: bold; }
+
+        /* 開始按鈕遮罩 */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--night-bg); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .start-btn { padding: 20px 40px; font-size: 30px; background: var(--neon-pink); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px var(--neon-pink); transition: transform 0.2s; }
+        .start-btn:hover { transform: scale(1.1); }
+
         .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-        
         #feedback-text {
             position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
-            font-size: 48px; font-weight: bold; z-index: 200; pointer-events: none;
-            opacity: 0; transition: opacity 0.3s;
+            font-size: 48px; font-weight: bold; z-index: 200; opacity: 0; transition: opacity 0.3s;
         }
 
         button { padding: 12px; font-size: 18px; cursor: pointer; border-radius: 10px; border: 2px solid #ddd; background: #f8f9fa; }
-        button:hover { background: #eee; }
-
         @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
+
+    <audio id="bgm" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"></audio>
+    <audio id="win-sfx" src="https://actions.google.com/sounds/v1/cartoon/clapping_and_cheering_crowd.ogg"></audio>
+
+    <div id="start-overlay">
+        <button class="start-btn" onclick="startGame()">點擊開始夾娃娃大賽！</button>
+    </div>
 
     <h1>🏮 夜市語文大賽：拼音夾夾樂 🏮</h1>
     <div style="margin: 10px;">操作：← → 移動，空白鍵 [SPACE] 抓取</div>
 
     <div id="game-window">
         <div id="feedback-text"></div>
-
         <div id="cable"></div>
         <div id="claw-container">
             <div id="claw-base"></div>
             <div id="arm-left" class="arm"></div>
             <div id="arm-right" class="arm"></div>
         </div>
-
         <div id="doll-pool"></div>
-
         <div id="shelf">
             <span style="color: white; font-weight: bold;">戰利品：</span>
         </div>
@@ -120,8 +127,13 @@
         </div>
     </div>
 
+    <div id="win-screen">
+        <h1>🎉 太棒了！ 🎉</h1>
+        <p>恭喜您抓所有娃娃</p>
+        <button onclick="location.reload()" style="margin-top: 40px; padding: 15px 30px; font-size: 20px;">重新挑戰</button>
+    </div>
+
     <script>
-        // 修正後的資料格式
         const vocabData = [
             {n: "雞排", img_url: "https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"},
             {n: "珍珠奶茶", img_url: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", p: "zhēn zhū nǎi chá"},
@@ -135,31 +147,35 @@
 
         let clawX = 390;
         let isMoving = false;
+        let totalCollected = 0; // 用來計數抓到了幾個
         const clawContainer = document.getElementById('claw-container');
         const cable = document.getElementById('cable');
         const pool = document.getElementById('doll-pool');
-        const feedback = document.getElementById('feedback-text');
 
-        // 生成娃娃 (加入圖片顯示邏輯)
+        // 音樂控制
+        function startGame() {
+            document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('bgm').play();
+        }
+
+        // 初始化娃娃池
         vocabData.forEach((data, i) => {
             const d = document.createElement('div');
             d.className = 'doll';
             d.style.left = (40 + i * 95) + 'px';
             d.style.top = '430px';
-            
-            // 建立圖片標籤
             const img = document.createElement('img');
             img.src = data.img_url;
             d.appendChild(img);
-
             d.dataset.name = data.n;
             d.dataset.pinyin = data.p;
-            d.dataset.img = data.img_url; // 存入 dataset 方便後續抓取
+            d.dataset.img = data.img_url;
             pool.appendChild(d);
         });
 
+        // 鍵盤監聽
         window.addEventListener('keydown', (e) => {
-            if (isMoving) return;
+            if (isMoving || document.getElementById('quiz-overlay').style.display === 'flex' || document.getElementById('win-screen').style.display === 'flex') return;
             if (e.key === 'ArrowLeft' && clawX > 20) clawX -= 20;
             if (e.key === 'ArrowRight' && clawX < 740) clawX += 20;
             if (e.key === ' ') startCatch();
@@ -179,15 +195,12 @@
                     let dx = parseInt(d.style.left);
                     if (Math.abs(dx - clawX) < 45) caughtDoll = d;
                 });
-
                 if (caughtDoll) {
                     caughtDoll.style.top = '30px';
                     caughtDoll.style.left = clawX + 'px';
                 }
-
                 clawContainer.style.top = '0px';
                 cable.style.height = '0px';
-
                 setTimeout(() => {
                     document.getElementById('game-window').classList.remove('grabbing');
                     if (caughtDoll) openQuiz(caughtDoll);
@@ -202,19 +215,13 @@
             const qImg = document.getElementById('q-img');
             const correctAnswer = doll.dataset.pinyin;
             
-            // 顯示抓到的圖片
             qImg.src = doll.dataset.img;
             overlay.style.display = 'flex';
             optionsBox.innerHTML = '';
 
-            let otherPinyins = vocabData
-                .map(item => item.p)
-                .filter(p => p !== correctAnswer);
-            
+            let otherPinyins = vocabData.map(item => item.p).filter(p => p !== correctAnswer);
             otherPinyins.sort(() => Math.random() - 0.5);
-            let wrongChoices = otherPinyins.slice(0, 2);
-            let finalChoices = [correctAnswer, ...wrongChoices];
-            finalChoices.sort(() => Math.random() - 0.5);
+            let finalChoices = [correctAnswer, ...otherPinyins.slice(0, 2)].sort(() => Math.random() - 0.5);
 
             finalChoices.forEach(choiceText => {
                 const btn = document.createElement('button');
@@ -228,17 +235,28 @@
                         showFeedback("❌ 錯誤！", "#e74c3c");
                         doll.style.top = '430px'; 
                     }
-                    setTimeout(() => { isMoving = false; }, 1000);
+                    setTimeout(() => { 
+                        isMoving = false; 
+                        checkWin(); // 每次結束答題檢查是否全數抓完
+                    }, 1000);
                 };
                 optionsBox.appendChild(btn);
             });
         }
 
+        // 檢查勝利條件
+        function checkWin() {
+            if (totalCollected === vocabData.length) {
+                document.getElementById('bgm').pause(); // 停掉背景音
+                document.getElementById('win-sfx').play(); // 播歡呼音
+                document.getElementById('win-screen').style.display = 'flex';
+            }
+        }
+
         function showFeedback(msg, color) {
-            feedback.innerText = msg;
-            feedback.style.color = color;
-            feedback.style.opacity = "1";
-            setTimeout(() => { feedback.style.opacity = "0"; }, 1500);
+            const f = document.getElementById('feedback-text');
+            f.innerText = msg; f.style.color = color; f.style.opacity = "1";
+            setTimeout(() => { f.style.opacity = "0"; }, 1500);
         }
 
         function collect(doll) {
@@ -248,6 +266,7 @@
             tag.innerText = doll.dataset.name;
             shelf.appendChild(tag);
             doll.remove();
+            totalCollected++; // 抓到數量 +1
         }
     </script>
 </body>
