@@ -43,6 +43,7 @@
         .grabbing #arm-left { transform: rotate(5deg); }
         .grabbing #arm-right { transform: rotate(-5deg); }
 
+        /* 娃娃樣式 */
         .doll {
             position: absolute; 
             width: 80px; 
@@ -53,35 +54,28 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            color: #333; 
-            font-weight: bold; 
-            font-size: 15px;
             box-shadow: 0 6px 12px rgba(0,0,0,0.2); 
             transition: top 1s ease-in;
             z-index: 2;
+            overflow: hidden; /* 確保圖片不超出 */
         }
 
-        .doll::before, .doll::after {
-            content: "";
-            position: absolute;
-            width: 12px;
-            height: 6px;
-            background: #ffdbdb;
-            border-radius: 50%;
-            bottom: 25px;
+        /* 娃娃內的圖片 */
+        .doll img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .doll::before { left: 12px; }
-        .doll::after { right: 12px; }
-
-        .doll:nth-child(odd) { border-color: #74b9ff; }
-        .doll:nth-child(3n) { border-color: #a29bfe; }
-        .doll:nth-child(4n) { border-color: #55efc4; }
 
         #shelf { position: absolute; bottom: 0; width: 100%; height: 80px; background: var(--shelf-color); display: flex; align-items: center; padding: 0 20px; gap: 10px; }
         .collected-tag { background: #ffd700; color: #333; padding: 5px 12px; border-radius: 5px; font-weight: bold; animation: pop 0.3s ease; }
 
         #quiz-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
-        .quiz-card { background: white; color: #333; padding: 40px; border-radius: 20px; text-align: center; width: 400px; }
+        .quiz-card { background: white; color: #333; padding: 30px; border-radius: 20px; text-align: center; width: 400px; }
+        
+        /* 題目圖片樣式 */
+        #q-img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+
         .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         
         #feedback-text {
@@ -119,18 +113,24 @@
 
         <div id="quiz-overlay">
             <div class="quiz-card">
-                <h2 id="q-title">這是什麼？</h2>
+                <img id="q-img" src="" alt="題目圖片">
+                <h2 id="q-title">這張圖的拼音是？</h2>
                 <div class="btn-group" id="q-options"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // 修正後的資料格式
         const vocabData = [
-            {n: img_url:"https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"}, {n: img_url: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", p: "zhēn zhū nǎi chá"},
-            {n: img_url: "https://www.17life.com/Images/imagesU/1/110776/%E9%A6%AC%E5%91%8A%E9%A6%99%E8%85%B8_1000x1000.jpg", p: "xiāng cháng"}, {n: img_url:"https://tse4.mm.bing.net/th/id/OIP.SzOOOok927fpenJsMe4GtwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3", p: "é á jiān"},
-            {n: img_url:"https://tse1.explicit.bing.net/th/id/OIP.EQNs5ug8uxKPUjbc6ky_gAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", p: "dì guā qiú"}, {n: img_url:"https://faceatious.com/post/dumplings-xlb/dintaifung.jpg", p: "xiǎo lóng bāo"},
-            {n: img_url:"https://th.bing.com/th/id/R.4265dcc4173715f7a4cc13956c98ce1c?rik=0A3mphaZPen88g&riu=http%3a%2f%2fi0.hdslb.com%2fbfs%2farchive%2f0cd3d7e8d9f65854dcf61681e32f9a1c2ee6b09e.jpg&ehk=P0MFOIr%2fd2vEZFhBqAP%2b7QYqPgbXNx7MG1x8K539sdI%3d&risl=&pid=ImgRaw&r=0", p: "niú ròu miàn"}, {n: img_url:"https://lazybag.app/wp-content/uploads/2023/06/20230628195239_73-1170x612.jpeg", p: "máng guǒ bīng"}
+            {n: "雞排", img_url: "https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"},
+            {n: "珍珠奶茶", img_url: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", p: "zhēn zhū nǎi chá"},
+            {n: "香腸", img_url: "https://www.17life.com/Images/imagesU/1/110776/%E9%A6%AC%E5%91%8A%E9%A6%99%E8%85%B8_1000x1000.jpg", p: "xiāng cháng"},
+            {n: "蚵仔煎", img_url: "https://tse4.mm.bing.net/th/id/OIP.SzOOOok927fpenJsMe4GtwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3", p: "é á jiān"},
+            {n: "地瓜球", img_url: "https://tse1.explicit.bing.net/th/id/OIP.EQNs5ug8uxKPUjbc6ky_gAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", p: "dì guā qiú"},
+            {n: "小籠包", img_url: "https://faceatious.com/post/dumplings-xlb/dintaifung.jpg", p: "xiǎo lóng bāo"},
+            {n: "牛肉麵", img_url: "https://th.bing.com/th/id/R.4265dcc4173715f7a4cc13956c98ce1c?rik=0A3mphaZPen88g&riu=http%3a%2f%2fi0.hdslb.com%2fbfs%2farchive%2f0cd3d7e8d9f65854dcf61681e32f9a1c2ee6b09e.jpg&ehk=P0MFOIr%2fd2vEZFhBqAP%2b7QYqPgbXNx7MG1x8K539sdI%3d&risl=&pid=ImgRaw&r=0", p: "niú ròu miàn"},
+            {n: "芒果冰", img_url: "https://lazybag.app/wp-content/uploads/2023/06/20230628195239_73-1170x612.jpeg", p: "máng guǒ bīng"}
         ];
 
         let clawX = 390;
@@ -140,14 +140,21 @@
         const pool = document.getElementById('doll-pool');
         const feedback = document.getElementById('feedback-text');
 
+        // 生成娃娃 (加入圖片顯示邏輯)
         vocabData.forEach((data, i) => {
             const d = document.createElement('div');
             d.className = 'doll';
             d.style.left = (40 + i * 95) + 'px';
             d.style.top = '430px';
-            d.innerHTML = data.n;
+            
+            // 建立圖片標籤
+            const img = document.createElement('img');
+            img.src = data.img_url;
+            d.appendChild(img);
+
             d.dataset.name = data.n;
             d.dataset.pinyin = data.p;
+            d.dataset.img = data.img_url; // 存入 dataset 方便後續抓取
             pool.appendChild(d);
         });
 
@@ -164,7 +171,6 @@
             isMoving = true;
             document.getElementById('game-window').classList.add('grabbing');
             clawContainer.style.top = '430px';
-            cable.height = '430px';
             cable.style.height = '430px';
 
             setTimeout(() => {
@@ -193,26 +199,21 @@
         function openQuiz(doll) {
             const overlay = document.getElementById('quiz-overlay');
             const optionsBox = document.getElementById('q-options');
+            const qImg = document.getElementById('q-img');
             const correctAnswer = doll.dataset.pinyin;
             
-            document.getElementById('q-title').innerText = `「${doll.dataset.name}」的拼音是？`;
+            // 顯示抓到的圖片
+            qImg.src = doll.dataset.img;
             overlay.style.display = 'flex';
             optionsBox.innerHTML = '';
 
-            // --- PERBAIKAN LOGIKA PILIHAN JAWABAN ---
-            // 1. Ambil semua pinyin dari database kecuali jawaban yang benar
             let otherPinyins = vocabData
                 .map(item => item.p)
                 .filter(p => p !== correctAnswer);
             
-            // 2. Acak daftar pinyin lain dan ambil 2 saja
             otherPinyins.sort(() => Math.random() - 0.5);
             let wrongChoices = otherPinyins.slice(0, 2);
-
-            // 3. Gabungkan jawaban benar dengan 2 jawaban salah tadi
             let finalChoices = [correctAnswer, ...wrongChoices];
-            
-            // 4. Acak urutan tombol agar jawaban benar tidak selalu di atas
             finalChoices.sort(() => Math.random() - 0.5);
 
             finalChoices.forEach(choiceText => {
