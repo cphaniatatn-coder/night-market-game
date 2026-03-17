@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夜市大亨 - 華語教學版</title>
+    <title>夜市大亨 - 華語教學實景版</title>
     <style>
         body { font-family: 'Microsoft JhengHei', sans-serif; text-align: center; background-color: #1a1a2e; color: white; margin: 0; overflow: hidden; }
-        h1 { color: #eccc68; margin: 15px 0; font-size: 24px; }
+        h1 { color: #eccc68; margin: 10px 0; font-size: 22px; text-shadow: 0 0 10px rgba(236, 204, 104, 0.5); }
         
         /* 地圖佈局 */
         #board { 
@@ -15,7 +15,7 @@
             grid-template-rows: repeat(4, 75px); 
             gap: 8px; 
             justify-content: center; 
-            margin: 10px auto; 
+            margin: 5px auto; 
             position: relative;
         }
         
@@ -26,45 +26,68 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 28px; 
             border-radius: 12px;
+            overflow: hidden; /* 確保圖片不超出格子 */
+        }
+
+        /* 格子內的圖片 */
+        .cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 圖片填滿格子且不變形 */
+        }
+
+        /* 🏠 起點樣式 */
+        .start-cell {
+            font-size: 35px;
+            background: #2f3542;
         }
 
         #player { 
-            width: 35px; height: 35px; 
+            width: 30px; height: 30px; 
             background: #ff4757; 
             border-radius: 50%; 
             position: absolute; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             z-index: 10; 
             border: 3px solid white;
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.6);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.8);
         }
 
         /* 按鈕與訊息 */
-        #ui-area { margin-top: 20px; }
+        #ui-area { margin-top: 15px; }
         button#dice-btn { 
-            padding: 12px 35px; font-size: 18px; cursor: pointer; 
+            padding: 10px 30px; font-size: 18px; cursor: pointer; 
             background: #eccc68; border: none; border-radius: 50px; color: #1a1a2e; font-weight: bold;
             box-shadow: 0 4px 0 #b8973d;
         }
-        #message { margin-top: 15px; font-size: 18px; color: #74b9ff; height: 25px; }
+        button#dice-btn:disabled { background: #95a5a6; box-shadow: 0 4px 0 #7f8c8d; cursor: not-serif; }
+        #message { margin-top: 10px; font-size: 16px; color: #74b9ff; height: 20px; }
         
         /* 彈窗背景 */
         .overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 20; justify-content: center; align-items: center;
         }
-        .card { background: white; color: #333; padding: 25px; border-radius: 20px; width: 85%; max-width: 300px; }
+        .card { background: white; color: #333; padding: 20px; border-radius: 20px; width: 85%; max-width: 280px; }
+        
+        /* 彈窗內的圖片樣式 */
+        .q-img, .res-img {
+            width: 150px; height: 150px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border: 3px solid #eee;
+        }
+
         .opt-btn { 
-            display: block; width: 100%; margin: 12px 0; padding: 12px; 
+            display: block; width: 100%; margin: 10px 0; padding: 10px; 
             background: #f1f2f6; border: 2px solid #ddd; border-radius: 10px; 
             font-size: 18px; cursor: pointer; font-weight: bold;
         }
 
         /* 結果頁面樣式 */
-        .result-icon { font-size: 80px; margin-bottom: 10px; }
-        .result-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+        .result-text { font-size: 24px; font-weight: bold; margin-bottom: 15px; }
         .correct { color: #2ed573; }
         .wrong { color: #ff4757; }
         .next-btn { 
@@ -75,24 +98,24 @@
 </head>
 <body>
 
-    <h1>🏮 夜市大亨</h1>
+    <h1>🏮 夜市大亨：實景學華語</h1>
 
     <div id="board">
         <div id="player"></div>
-        <div class="cell" id="c0">🏠</div>
-        <div class="cell" id="c1">🍗</div>
-        <div class="cell" id="c2">🧋</div>
-        <div class="cell" id="c3">🌭</div>
-        <div class="cell" id="c11">🍦</div>
+        <div class="cell start-cell" id="c0">🏠</div>
+        <div class="cell" id="c1"></div>
+        <div class="cell" id="c2"></div>
+        <div class="cell" id="c3"></div>
+        <div class="cell" id="c11"></div>
         <div class="cell" style="border:none"></div><div class="cell" style="border:none"></div>
-        <div class="cell" id="c4">🍲</div>
-        <div class="cell" id="c10">🍜</div>
+        <div class="cell" id="c4"></div>
+        <div class="cell" id="c10"></div>
         <div class="cell" style="border:none"></div><div class="cell" style="border:none"></div>
-        <div class="cell" id="c5">🍢</div>
-        <div class="cell" id="c9">🥭</div>
-        <div class="cell" id="c8">🥟</div>
-        <div class="cell" id="c7">🍡</div>
-        <div class="cell" id="c6">🥤</div>
+        <div class="cell" id="c5"></div>
+        <div class="cell" id="c9"></div>
+        <div class="cell" id="c8"></div>
+        <div class="cell" id="c7"></div>
+        <div class="cell" id="c6"></div>
     </div>
 
     <div id="ui-area">
@@ -102,38 +125,54 @@
 
     <div id="quiz-overlay" class="overlay">
         <div class="card">
-            <h2 id="q-emoji" style="font-size: 60px; margin: 0;"></h2>
-            <p id="q-text" style="font-size: 20px;">這是什麼？</p>
+            <img id="q-img" class="q-img" src="" alt="食物圖片">
+            <p id="q-text" style="font-size: 18px; margin: 0 0 10px 0;">這是什麼？</p>
             <div id="q-options"></div>
         </div>
     </div>
 
     <div id="result-overlay" class="overlay">
         <div class="card">
-            <div id="res-icon" class="result-icon"></div>
+            <img id="res-img" class="res-img" src="" alt="食物圖片">
             <div id="res-text" class="result-text"></div>
-            <p id="res-detail" style="color: #666; margin-bottom: 20px; font-size: 18px;"></p>
+            <p id="res-detail" style="color: #666; margin-bottom: 15px; font-size: 16px;"></p>
             <button class="next-btn" onclick="closeResult()">繼續前進</button>
         </div>
     </div>
 
     <script>
         const path = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        
+        // 食物資料庫：包含圖片連結
         const foodData = {
-            1: { name: '雞排', emoji: '🍗', opts: ['雞排', '牛排', '豬排'] },
-            2: { name: '珍珠奶茶', emoji: '🧋', opts: ['綠茶', '珍珠奶茶', '咖啡'] },
-            3: { name: '香腸', emoji: '🌭', opts: ['香腸', '漢堡', '熱狗'] },
-            4: { name: '蚵仔煎', emoji: '🍲', opts: ['火鍋', '蚵仔煎', '牛肉麵'] },
-            5: { name: '甜不辣', emoji: '🍢', opts: ['甜不辣', '臭豆腐', '豬血糕'] },
-            6: { name: '木瓜牛奶', emoji: '🥤', opts: ['可樂', '水', '木瓜牛奶'] },
-            7: { name: '地瓜球', emoji: '🍡', opts: ['地瓜球', '鬆餅', '糖葫蘆'] },
-            8: { name: '小籠包', emoji: '🥟', opts: ['饅頭', '小籠包', '水餃'] },
-            9: { name: '芒果冰', emoji: '🥭', opts: ['香蕉', '芒果冰', '西瓜'] },
-            10: { name: '牛肉麵', emoji: '🍜', opts: ['牛肉麵', '拉麵', '義大利麵'] },
-            11: { name: '冰淇淋', emoji: '🍦', opts: ['冰淇淋', '蛋糕', '餅乾'] }
+            1: { name: '雞排', img: 'https://i.imgur.com/K1oWzG8.jpg', opts: ['雞排', '牛排', '豬排'] },
+            2: { name: '珍珠奶茶', img: 'https://i.imgur.com/XqT7M07.jpg', opts: ['綠茶', '珍珠奶茶', '咖啡'] },
+            3: { name: '香腸', img: 'https://i.imgur.com/6EwB4fK.jpg', opts: ['香腸', '漢堡', '熱狗'] },
+            4: { name: '蚵仔煎', img: 'https://i.imgur.com/vHqLhWb.jpg', opts: ['火鍋', '蚵仔煎', '牛肉麵'] },
+            5: { name: '甜不辣', img: 'https://i.imgur.com/uC3K3pY.jpg', opts: ['甜不辣', '臭豆腐', '豬血糕'] },
+            6: { name: '木瓜牛奶', img: 'https://i.imgur.com/M6L2M5C.jpg', opts: ['可樂', '水', '木瓜牛奶'] },
+            7: { name: '地瓜球', img: 'https://i.imgur.com/pZzV6uC.jpg', opts: ['地瓜球', '鬆餅', '糖葫蘆'] },
+            8: { name: '小籠包', img: 'https://i.imgur.com/bY3A0U5.jpg', opts: ['饅頭', '小籠包', '水餃'] },
+            9: { name: '芒果冰', img: 'https://i.imgur.com/hG9N6Hw.jpg', opts: ['香蕉', '芒果冰', '西瓜'] },
+            10: { name: '牛肉麵', img: 'https://i.imgur.com/lO3Xb1E.jpg', opts: ['牛肉麵', '拉麵', '義大利麵'] },
+            11: { name: '冰淇淋', img: 'https://i.imgur.com/yF5fC4s.jpg', opts: ['冰淇淋', '蛋糕', '餅乾'] }
         };
 
         let currentPos = 0;
+
+        // 初始化：將圖片填入地圖格子
+        function initBoard() {
+            for (let i = 1; i <= 11; i++) {
+                const cell = document.getElementById('c' + i);
+                if (cell && foodData[i]) {
+                    const img = document.createElement('img');
+                    img.src = foodData[i].img;
+                    img.alt = foodData[i].name;
+                    cell.appendChild(img);
+                }
+            }
+            updatePlayerUI();
+        }
 
         function updatePlayerUI() {
             const cell = document.getElementById('c' + path[currentPos]);
@@ -142,7 +181,7 @@
             player.style.top = (cell.offsetTop + 20) + 'px';
         }
 
-        window.onload = updatePlayerUI;
+        window.onload = initBoard;
 
         function rollDice() {
             document.getElementById('dice-btn').disabled = true;
@@ -173,7 +212,7 @@
 
         function showQuiz(food) {
             document.getElementById('quiz-overlay').style.display = 'flex';
-            document.getElementById('q-emoji').innerText = food.emoji;
+            document.getElementById('q-img').src = food.img; // 設置問題圖片
             const optDiv = document.getElementById('q-options');
             optDiv.innerHTML = '';
             
@@ -181,32 +220,30 @@
                 const b = document.createElement('button');
                 b.className = 'opt-btn';
                 b.innerText = o;
-                b.onclick = () => handleAnswer(o, food.name);
+                b.onclick = () => handleAnswer(o, food);
                 optDiv.appendChild(b);
             });
         }
 
-        function handleAnswer(selected, correct) {
-            // 隱藏問題畫面
+        function handleAnswer(selected, food) {
             document.getElementById('quiz-overlay').style.display = 'none';
             
             const resOverlay = document.getElementById('result-overlay');
-            const resIcon = document.getElementById('res-icon');
+            const resImg = document.getElementById('res-img');
             const resText = document.getElementById('res-text');
             const resDetail = document.getElementById('res-detail');
 
             resOverlay.style.display = 'flex';
+            resImg.src = food.img; // 設置結果圖片
             
-            if (selected === correct) {
-                resIcon.innerText = '✅';
-                resText.innerText = '答對了！';
+            if (selected === food.name) {
+                resText.innerText = '✅ 答對了！';
                 resText.className = 'result-text correct';
-                resDetail.innerText = '你真棒，這就是「' + correct + '」。';
+                resDetail.innerText = '你真棒，這就是「' + food.name + '」。';
             } else {
-                resIcon.innerText = '❌';
-                resText.innerText = '答錯了...';
+                resText.innerText = '❌ 答錯了...';
                 resText.className = 'result-text wrong';
-                resDetail.innerText = '別灰心，正確答案是「' + correct + '」。';
+                resDetail.innerText = '別灰心，正確答案是「' + food.name + '」。';
             }
         }
 
