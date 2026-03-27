@@ -3,146 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>豪華版：夜市拼音大挑戰</title>
+    <title>豪華等級版：夜市拼音大挑戰</title>
     <style>
         :root {
             --night-bg: #0f0f1b;
             --shelf-color: #3e2723;
             --neon-pink: #ff00ff;
             --neon-cyan: #00f2ff;
-            --correct-green: #2ecc71;
-            --wrong-red: #e74c3c;
             --gold: #ffd700;
         }
 
         body {
-            margin: 0;
-            background-color: var(--night-bg);
-            color: white;
+            margin: 0; background-color: var(--night-bg); color: white;
             font-family: "Microsoft JhengHei", sans-serif;
             display: flex; flex-direction: column; align-items: center;
-            overflow: hidden;
-            height: 100vh;
+            overflow: hidden; height: 100vh;
         }
 
-        /* 標題動畫 */
-        h1 {
-            margin: 15px 0;
-            font-size: 2.5rem;
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
-            animation: flicker 2s infinite;
+        /* 等級標示 */
+        #level-indicator {
+            font-size: 24px; color: var(--neon-cyan); font-weight: bold;
+            text-shadow: 0 0 10px var(--neon-cyan); margin-top: 10px;
         }
 
-        @keyframes flicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 22%, 24%, 55% { opacity: 0.5; }
-        }
-
-        /* 遊戲主視窗 */
         #game-window {
-            position: relative;
-            width: 850px;
-            height: 620px;
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+            position: relative; width: 850px; height: 600px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
                         url('https://res.klook.com/image/upload/q_85/c_fill,w_1360/GettyImages-983059272_t7roog.jpg');
-            background-size: cover;
-            background-position: center;
-            border: 10px solid #2c3e50;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.5);
-            overflow: hidden;
+            background-size: cover; border: 10px solid #2c3e50; border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8); overflow: hidden;
         }
 
         /* 鋼索與夾子 */
-        #cable { 
-            position: absolute; width: 4px; background: linear-gradient(to right, #888, #ddd, #888); 
-            top: 0; left: 398px; height: 0; transition: height 1s ease-in; z-index: 5; 
-        }
-        #claw-container { 
-            position: absolute; width: 40px; height: 40px; top: 0; left: 380px; 
-            z-index: 10; transition: top 1s ease-in, left 0.1s linear; 
-        }
-        #claw-base { 
-            width: 40px; height: 20px; background: #555; border-radius: 5px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .arm { 
-            position: absolute; width: 10px; height: 60px; background: #999; 
-            border-radius: 5px; top: 15px; transition: transform 0.3s; transform-origin: top center; 
-            border: 1px solid #444;
-        }
+        #cable { position: absolute; width: 4px; background: #ddd; top: 0; left: 398px; height: 0; transition: height 1s ease-in; z-index: 5; }
+        #claw-container { position: absolute; width: 40px; height: 40px; top: 0; left: 380px; z-index: 10; transition: top 1s ease-in, left 0.1s linear; }
+        #claw-base { width: 40px; height: 20px; background: #555; border-radius: 5px; }
+        .arm { position: absolute; width: 10px; height: 60px; background: #999; border-radius: 5px; top: 15px; transition: transform 0.3s; transform-origin: top center; }
         #arm-left { left: 5px; transform: rotate(35deg); }
         #arm-right { right: 5px; transform: rotate(-35deg); }
         .grabbing #arm-left { transform: rotate(10deg); }
         .grabbing #arm-right { transform: rotate(-10deg); }
 
-        /* 娃娃池強化 */
+        /* 娃娃樣式 */
         .doll {
             position: absolute; width: 85px; height: 90px;
             background: white; border: 4px solid var(--neon-pink);
-            border-radius: 25px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: top 1s ease-in, transform 0.5s;
-            z-index: 2; overflow: hidden; cursor: pointer;
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: top 1s ease-in;
+            z-index: 2; overflow: hidden;
         }
-        .doll:hover { transform: scale(1.05) rotate(5deg); }
-        .doll img { width: 90%; height: 90%; object-fit: cover; border-radius: 15px; }
+        .doll img { width: 90%; height: 90%; object-fit: cover; }
 
-        /* 戰利品架 */
-        #shelf { 
-            position: absolute; bottom: 0; width: 100%; height: 90px; 
-            background: linear-gradient(to top, #2b1d0e, var(--shelf-color)); 
-            display: flex; align-items: center; padding: 0 25px; gap: 15px;
-            border-top: 4px solid #8d6e63;
-        }
-        .collected-tag { 
-            background: var(--gold); color: #333; padding: 8px 15px; 
-            border-radius: 8px; font-weight: bold; border: 2px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
+        /* UI 元件 */
+        #shelf { position: absolute; bottom: 0; width: 100%; height: 80px; background: var(--shelf-color); display: flex; align-items: center; padding: 0 20px; gap: 10px; }
+        .collected-tag { background: var(--gold); color: #333; padding: 5px 12px; border-radius: 5px; font-weight: bold; animation: pop 0.4s; }
 
-        /* 答題遮罩 - 強化信號原則 */
-        #quiz-overlay { 
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; 
-            backdrop-filter: blur(5px);
+        /* 答題遮罩 */
+        #quiz-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
+        .quiz-card { background: white; color: #333; padding: 30px; border-radius: 25px; text-align: center; width: 400px; border: 5px solid var(--neon-cyan); }
+        #q-img { width: 150px; height: 150px; object-fit: cover; border-radius: 15px; }
+        .quiz-btn { width: 100%; padding: 12px; margin: 5px 0; font-size: 18px; cursor: pointer; border-radius: 10px; border: 2px solid #ddd; background: #f9f9f9; font-weight: bold; }
+        .quiz-btn:hover { background: var(--neon-cyan); color: white; }
+
+        /* 過場與結束 */
+        #level-up-screen, #win-screen, #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .quiz-card { 
-            background: #fff; color: #333; padding: 40px; border-radius: 30px; 
-            text-align: center; width: 450px; border: 8px solid var(--neon-cyan);
-            box-shadow: 0 0 30px var(--neon-cyan);
-        }
-        #q-img { width: 180px; height: 180px; object-fit: cover; border-radius: 20px; margin-bottom: 20px; border: 5px solid #eee; }
+        .start-btn { padding: 20px 40px; font-size: 30px; background: var(--neon-pink); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px var(--neon-pink); }
         
-        /* 選項按鈕 */
-        .btn-group { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 25px; }
-        .quiz-btn { 
-            padding: 15px; font-size: 20px; cursor: pointer; border-radius: 15px; 
-            border: 2px solid #ddd; background: #fdfdfd; transition: all 0.2s;
-            font-weight: bold; color: #444;
-        }
-        .quiz-btn:hover { background: var(--neon-cyan); color: white; transform: translateY(-3px); }
-
-        /* 回饋文字 */
-        #feedback-text {
-            position: absolute; top: 25%; left: 50%; transform: translateX(-50%);
-            font-size: 60px; font-weight: bold; z-index: 200; opacity: 0; 
-            text-shadow: 0 0 20px rgba(255,255,255,0.8); pointer-events: none;
-        }
-
-        /* 勝利畫面 */
-        #win-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a1a2e, #000); z-index: 1000;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        #win-screen h1 { font-size: 80px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
-        .restart-btn { 
-            margin-top: 50px; padding: 20px 50px; font-size: 28px; 
-            background: var(--neon-pink); border: none; color: white; border-radius: 50px;
-            cursor: pointer; box-shadow: 0 0 20px var(--neon-pink);
-        }
-
+        #feedback-text { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); font-size: 50px; font-weight: bold; z-index: 300; opacity: 0; pointer-events: none; }
+        
         @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
     </style>
 </head>
@@ -151,13 +83,23 @@
     <audio id="win-sfx" src="https://actions.google.com/sounds/v1/cartoon/clapping_and_cheering_crowd.ogg"></audio>
 
     <div id="start-overlay">
-        <button class="start-btn" onclick="startGame()">進入夜市拼音大賽 🏮</button>
+        <h1 style="color: var(--gold); font-size: 50px;">夜市拼音夾夾樂</h1>
+        <button class="start-btn" onclick="initLevel(1)">開始挑戰等級 1</button>
     </div>
 
-    <h1>🏮 夜市語文大賽：拼音夾夾樂 🏮</h1>
-    <div style="margin-bottom: 15px; font-size: 1.1rem; color: #ccc;">
-        目標：收集所有美食！ 使用 <b>← →</b> 移動，<b>[SPACE]</b> 抓取
+    <div id="level-up-screen" style="display: none;">
+        <h1 style="color: var(--neon-cyan); font-size: 60px;">LEVEL UP!</h1>
+        <p id="level-up-msg" style="font-size: 24px;">即將進入等級 2...</p>
     </div>
+
+    <div id="win-screen" style="display: none;">
+        <h1 style="color: var(--gold); font-size: 60px;">🎉 大獲全勝！ 🎉</h1>
+        <p style="font-size: 32px;">恭喜您抓所有娃娃</p>
+        <button class="start-btn" onclick="location.reload()">重新遊玩</button>
+    </div>
+
+    <div id="level-indicator">當前等級：LEVEL 1</div>
+    <h1>🏮 夜市拼音大挑戰 🏮</h1>
 
     <div id="game-window">
         <div id="feedback-text"></div>
@@ -167,55 +109,169 @@
             <div id="arm-left" class="arm"></div>
             <div id="arm-right" class="arm"></div>
         </div>
-        
         <div id="doll-pool"></div>
-
         <div id="shelf">
-            <span style="color: #ffd700; font-weight: bold; font-size: 1.2rem;">🏆 我的戰利品：</span>
+            <span style="color: var(--gold); font-weight: bold;">戰利品：</span>
         </div>
-
         <div id="quiz-overlay">
             <div class="quiz-card">
-                <img id="q-img" src="" alt="題目圖片">
-                <h2 style="margin: 0; color: #555;">請選擇正確的拼音：</h2>
-                <div class="btn-group" id="q-options"></div>
+                <img id="q-img" src="" alt="">
+                <h2 id="q-title">這是什麼小吃的拼音？</h2>
+                <div id="q-options"></div>
             </div>
         </div>
     </div>
 
-    <div id="win-screen">
-        <h1 id="win-title">🎊 完美的挑戰！ 🎊</h1>
-        <p style="font-size: 30px; color: white;">恭喜您集齊所有夜市美食娃娃！</p>
-        <button class="restart-btn" onclick="location.reload()">再次挑戰 🔄</button>
-    </div>
-
     <script>
-        const vocabData = [
-            {n: "雞排", img: "https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"},
-            {n: "珍珠奶茶", img: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", p: "zhēn zhū nǎi chá"},
-            {n: "香腸", img: "https://www.17life.com/Images/imagesU/1/110776/%E9%A6%AC%E5%91%8A%E9%A6%99%E8%85%B8_1000x1000.jpg", p: "xiāng cháng"},
-            {n: "蚵仔煎", img: "https://tse4.mm.bing.net/th/id/OIP.SzOOOok927fpenJsMe4GtwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3", p: "é á jiān"},
-            {n: "地瓜球", img: "https://tse1.explicit.bing.net/th/id/OIP.EQNs5ug8uxKPUjbc6ky_gAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", p: "dì guā qiú"},
-            {n: "小籠包", img: "https://faceatious.com/post/dumplings-xlb/dintaifung.jpg", p: "xiǎo lóng bāo"},
-            {n: "牛肉麵", img: "https://th.bing.com/th/id/R.4265dcc4173715f7a4cc13956c98ce1c?rik=0A3mphaZPen88g&riu=http%3a%2f%2fi0.hdslb.com%2fbfs%2farchive%2f0cd3d7e8d9f65854dcf61681e32f9a1c2ee6b09e.jpg&ehk=P0MFOIr%2fd2vEZFhBqAP%2b7QYqPgbXNx7MG1x8K539sdI%3d&risl=&pid=ImgRaw&r=0", p: "niú ròu miàn"},
-            {n: "芒果冰", img: "https://lazybag.app/wp-content/uploads/2023/06/20230628195239_73-1170x612.jpeg", p: "máng guǒ bīng"},
-            {n: "臭豆腐", img: "https://th.bing.com/th/id/R.45ed7f3adc915b67a2a71c925921f19c?rik=Nnam7mTu%2fXbaNQ&riu=http%3a%2f%2fimg1.bala.cc%2fallimg%2f2208%2f145I3AC-3.jpg&ehk=Hs6apbQqUiE1xOWXtwvZpSLNfDqesiiCPNUBaaXDUus%3d&risl=&pid=ImgRaw&r=0", p: "chòu dòu fu"},
-            {n: "胡椒餅", img: "https://www.curryd.com/images/main_images/hujiao-bing-1703594843.jpg", p: "hú jiāo bǐng"},
-            {n: "糖葫蘆", img: "https://tse4.mm.bing.net/th/id/OIP.YHbjvJ58LqrCMcyidwMelQHaLH?rs=1&pid=ImgDetMain&o=7&rm=3", p: "táng hú lú"},
-        ];
+        const allVocab = {
+            1: [ // 等級 1: 二字小吃
+                {n: "雞排", img: "https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"},
+                {n: "香腸", img: "https://www.17life.com/Images/imagesU/1/110776/%E9%A6%AC%E5%91%8A%E9%A6%99%E8%85%B8_1000x1000.jpg", p: "xiāng cháng"},
+                {n: "涼麵", img: "https://tse3.mm.bing.net/th/id/OIP.iF0Y05W_kM82v8_4lV0I_AHaE8?rs=1&pid=ImgDetMain", p: "liáng miàn"}
+            ],
+            2: [ // 等級 2: 三字小吃
+                {n: "地瓜球", img: "https://tse1.explicit.bing.net/th/id/OIP.EQNs5ug8uxKPUjbc6ky_gAHaE8?rs=1&pid=ImgDetMain", p: "dì guā qiú"},
+                {n: "小籠包", img: "https://faceatious.com/post/dumplings-xlb/dintaifung.jpg", p: "xiǎo lóng bāo"},
+                {n: "胡椒餅", img: "https://www.curryd.com/images/main_images/hujiao-bing-1703594843.jpg", p: "hú jiāo bǐng"}
+            ],
+            3: [ // 等級 3: 四字或複雜小吃
+                {n: "珍珠奶茶", img: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain", p: "zhēn zhū nǎi chá"},
+                {n: "大腸包小腸", img: "https://th.bing.com/th/id/OIP.8lW4_W8Yf_6Z9B0X5z6b7gHaE8?pid=ImgDetMain", p: "dà cháng bāo xiǎo cháng"},
+                {n: "蚵仔麵線", img: "https://tse1.mm.bing.net/th/id/OIP.jK8D6e2p9p6y2p7p8p9p7p?rs=1&pid=ImgDetMain", p: "é á miàn xiàn"}
+            ]
+        };
 
+        let currentLevel = 1;
         let clawX = 380;
         let isMoving = false;
-        let totalCollected = 0;
+        let levelCollected = 0;
         const clawContainer = document.getElementById('claw-container');
         const cable = document.getElementById('cable');
-        const pool = document.getElementById('doll-pool');
 
-        function startGame() {
+        function initLevel(level) {
+            currentLevel = level;
+            levelCollected = 0;
             document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('level-up-screen').style.display = 'none';
+            document.getElementById('level-indicator').innerText = `當前等級：LEVEL ${level}`;
+            
+            const pool = document.getElementById('doll-pool');
+            pool.innerHTML = '';
+            
+            allVocab[level].forEach((data, i) => {
+                const d = document.createElement('div');
+                d.className = 'doll';
+                d.style.left = (150 + i * 200) + 'px'; // 讓娃娃間距拉開
+                d.style.top = '410px';
+                d.innerHTML = `<img src="${data.img}">`;
+                d.dataset.name = data.n;
+                d.dataset.pinyin = data.p;
+                d.dataset.img = data.img;
+                pool.appendChild(d);
+            });
         }
 
-        // 初始化娃娃 (增加隨機擺放感)
-        vocabData.forEach((data, i) => {
-            const d = document.createElement('div');
-            d.className = '
+        window.addEventListener('keydown', (e) => {
+            if (isMoving || document.getElementById('quiz-overlay').style.display === 'flex') return;
+            if (e.key === 'ArrowLeft' && clawX > 20) clawX -= 30;
+            if (e.key === 'ArrowRight' && clawX < 780) clawX += 30;
+            if (e.key === ' ') startCatch();
+            clawContainer.style.left = clawX + 'px';
+            cable.style.left = (clawX + 18) + 'px';
+        });
+
+        function startCatch() {
+            isMoving = true;
+            document.getElementById('game-window').classList.add('grabbing');
+            clawContainer.style.top = '410px';
+            cable.style.height = '410px';
+
+            setTimeout(() => {
+                let caughtDoll = null;
+                document.querySelectorAll('.doll').forEach(d => {
+                    if (Math.abs(parseInt(d.style.left) - clawX) < 50) caughtDoll = d;
+                });
+
+                if (caughtDoll) {
+                    caughtDoll.style.top = '35px';
+                    caughtDoll.style.left = clawX + 'px';
+                }
+
+                clawContainer.style.top = '0px';
+                cable.style.height = '0px';
+
+                setTimeout(() => {
+                    document.getElementById('game-window').classList.remove('grabbing');
+                    if (caughtDoll) openQuiz(caughtDoll);
+                    else isMoving = false;
+                }, 1000);
+            }, 1000);
+        }
+
+        function openQuiz(doll) {
+            const overlay = document.getElementById('quiz-overlay');
+            const optionsBox = document.getElementById('q-options');
+            const correctP = doll.dataset.pinyin;
+            
+            document.getElementById('q-img').src = doll.dataset.img;
+            overlay.style.display = 'flex';
+            optionsBox.innerHTML = '';
+
+            // 隨機混淆選項
+            let choices = [correctP];
+            let others = [];
+            Object.values(allVocab).flat().forEach(v => {
+                if(v.p !== correctP && !others.includes(v.p)) others.push(v.p);
+            });
+            choices.push(...others.sort(() => Math.random() - 0.5).slice(0, 2));
+            choices.sort(() => Math.random() - 0.5);
+
+            choices.forEach(text => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.innerText = text;
+                btn.onclick = () => {
+                    overlay.style.display = 'none';
+                    if (text === correctP) {
+                        showFeedback("✅ 正確！", "#2ecc71");
+                        collect(doll);
+                    } else {
+                        showFeedback("❌ 錯誤！", "#e74c3c");
+                        doll.style.top = '410px';
+                    }
+                    setTimeout(() => { isMoving = false; checkProgress(); }, 1200);
+                };
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function showFeedback(msg, color) {
+            const f = document.getElementById('feedback-text');
+            f.innerText = msg; f.style.color = color; f.style.opacity = "1";
+            setTimeout(() => f.style.opacity = "0", 1000);
+        }
+
+        function collect(doll) {
+            const tag = document.createElement('div');
+            tag.className = 'collected-tag';
+            tag.innerText = doll.dataset.name;
+            document.getElementById('shelf').appendChild(tag);
+            doll.remove();
+            levelCollected++;
+        }
+
+        function checkProgress() {
+            if (levelCollected === allVocab[currentLevel].length) {
+                if (currentLevel < 3) {
+                    document.getElementById('level-up-msg').innerText = `即將進入等級 ${currentLevel + 1}...`;
+                    document.getElementById('level-up-screen').style.display = 'flex';
+                    setTimeout(() => initLevel(currentLevel + 1), 2000);
+                } else {
+                    document.getElementById('win-sfx').play();
+                    document.getElementById('win-screen').style.display = 'flex';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
