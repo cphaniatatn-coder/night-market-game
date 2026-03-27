@@ -3,94 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夜市語文大賽：拼音夾夾樂</title>
+    <title>豪華版：夜市拼音大挑戰</title>
     <style>
         :root {
-            --night-bg: #1a1a2e;
-            --shelf-color: #5d4037;
+            --night-bg: #0f0f1b;
+            --shelf-color: #3e2723;
             --neon-pink: #ff00ff;
+            --neon-cyan: #00f2ff;
             --correct-green: #2ecc71;
             --wrong-red: #e74c3c;
+            --gold: #ffd700;
         }
 
         body {
             margin: 0;
             background-color: var(--night-bg);
             color: white;
-            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            font-family: "Microsoft JhengHei", sans-serif;
             display: flex; flex-direction: column; align-items: center;
             overflow: hidden;
+            height: 100vh;
         }
 
-        /* 遊戲視窗 */
+        /* 標題動畫 */
+        h1 {
+            margin: 15px 0;
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 22%, 24%, 55% { opacity: 0.5; }
+        }
+
+        /* 遊戲主視窗 */
         #game-window {
             position: relative;
-            width: 800px;
-            height: 600px;
-            background-image: url('https://res.klook.com/image/upload/q_85/c_fill,w_1360/GettyImages-983059272_t7roog.jpg');
+            width: 850px;
+            height: 620px;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                        url('https://res.klook.com/image/upload/q_85/c_fill,w_1360/GettyImages-983059272_t7roog.jpg');
             background-size: cover;
             background-position: center;
-            border: 8px solid #444;
-            border-radius: 10px;
+            border: 10px solid #2c3e50;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.5);
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        #cable { position: absolute; width: 2px; background: #ccc; top: 0; left: 399px; height: 0; transition: height 1s ease-in; z-index: 5; }
-        #claw-container { position: absolute; width: 20px; height: 20px; top: 0; left: 390px; z-index: 10; transition: top 1s ease-in, left 0.1s linear; }
-        #claw-base { width: 20px; height: 15px; background: #888; border-radius: 5px; }
-        .arm { position: absolute; width: 8px; height: 50px; background: #aaa; border-radius: 5px; top: 10px; transition: transform 0.3s; transform-origin: top center; }
-        #arm-left { left: -5px; transform: rotate(30deg); }
-        #arm-right { right: -5px; transform: rotate(-30deg); }
-        .grabbing #arm-left { transform: rotate(5deg); }
-        .grabbing #arm-right { transform: rotate(-5deg); }
+        /* 鋼索與夾子 */
+        #cable { 
+            position: absolute; width: 4px; background: linear-gradient(to right, #888, #ddd, #888); 
+            top: 0; left: 398px; height: 0; transition: height 1s ease-in; z-index: 5; 
+        }
+        #claw-container { 
+            position: absolute; width: 40px; height: 40px; top: 0; left: 380px; 
+            z-index: 10; transition: top 1s ease-in, left 0.1s linear; 
+        }
+        #claw-base { 
+            width: 40px; height: 20px; background: #555; border-radius: 5px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .arm { 
+            position: absolute; width: 10px; height: 60px; background: #999; 
+            border-radius: 5px; top: 15px; transition: transform 0.3s; transform-origin: top center; 
+            border: 1px solid #444;
+        }
+        #arm-left { left: 5px; transform: rotate(35deg); }
+        #arm-right { right: 5px; transform: rotate(-35deg); }
+        .grabbing #arm-left { transform: rotate(10deg); }
+        .grabbing #arm-right { transform: rotate(-10deg); }
 
+        /* 娃娃池強化 */
         .doll {
-            position: absolute; width: 80px; height: 85px;
-            background: #fff; border: 4px solid #ff9a9e; 
-            border-radius: 42% 42% 38% 38% / 45% 45% 32% 32%;
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2); transition: top 1s ease-in;
-            z-index: 2; overflow: hidden;
+            position: absolute; width: 85px; height: 90px;
+            background: white; border: 4px solid var(--neon-pink);
+            border-radius: 25px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: top 1s ease-in, transform 0.5s;
+            z-index: 2; overflow: hidden; cursor: pointer;
         }
-        .doll img { width: 100%; height: 100%; object-fit: cover; }
+        .doll:hover { transform: scale(1.05) rotate(5deg); }
+        .doll img { width: 90%; height: 90%; object-fit: cover; border-radius: 15px; }
 
-        #shelf { position: absolute; bottom: 0; width: 100%; height: 80px; background: var(--shelf-color); display: flex; align-items: center; padding: 0 20px; gap: 10px; }
-        .collected-tag { background: #ffd700; color: #333; padding: 5px 12px; border-radius: 5px; font-weight: bold; animation: pop 0.3s ease; }
+        /* 戰利品架 */
+        #shelf { 
+            position: absolute; bottom: 0; width: 100%; height: 90px; 
+            background: linear-gradient(to top, #2b1d0e, var(--shelf-color)); 
+            display: flex; align-items: center; padding: 0 25px; gap: 15px;
+            border-top: 4px solid #8d6e63;
+        }
+        .collected-tag { 
+            background: var(--gold); color: #333; padding: 8px 15px; 
+            border-radius: 8px; font-weight: bold; border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
 
-        /* 問答視窗 */
-        #quiz-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
-        .quiz-card { background: white; color: #333; padding: 30px; border-radius: 20px; text-align: center; width: 400px; }
-        #q-img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        /* 答題遮罩 - 強化信號原則 */
+        #quiz-overlay { 
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; 
+            backdrop-filter: blur(5px);
+        }
+        .quiz-card { 
+            background: #fff; color: #333; padding: 40px; border-radius: 30px; 
+            text-align: center; width: 450px; border: 8px solid var(--neon-cyan);
+            box-shadow: 0 0 30px var(--neon-cyan);
+        }
+        #q-img { width: 180px; height: 180px; object-fit: cover; border-radius: 20px; margin-bottom: 20px; border: 5px solid #eee; }
+        
+        /* 選項按鈕 */
+        .btn-group { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 25px; }
+        .quiz-btn { 
+            padding: 15px; font-size: 20px; cursor: pointer; border-radius: 15px; 
+            border: 2px solid #ddd; background: #fdfdfd; transition: all 0.2s;
+            font-weight: bold; color: #444;
+        }
+        .quiz-btn:hover { background: var(--neon-cyan); color: white; transform: translateY(-3px); }
 
-        /* 恭喜通關頁面 */
+        /* 回饋文字 */
+        #feedback-text {
+            position: absolute; top: 25%; left: 50%; transform: translateX(-50%);
+            font-size: 60px; font-weight: bold; z-index: 200; opacity: 0; 
+            text-shadow: 0 0 20px rgba(255,255,255,0.8); pointer-events: none;
+        }
+
+        /* 勝利畫面 */
         #win-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(26, 26, 46, 0.95); z-index: 1000;
+            background: radial-gradient(circle, #1a1a2e, #000); z-index: 1000;
             flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; animation: fadeIn 1s;
         }
-        #win-screen h1 { font-size: 60px; color: #ffd700; text-shadow: 0 0 20px #ff0; margin-bottom: 20px; }
-        #win-screen p { font-size: 32px; color: #fff; font-weight: bold; }
-
-        /* 開始按鈕遮罩 */
-        #start-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--night-bg); z-index: 2000;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .start-btn { padding: 20px 40px; font-size: 30px; background: var(--neon-pink); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px var(--neon-pink); transition: transform 0.2s; }
-        .start-btn:hover { transform: scale(1.1); }
-
-        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-        #feedback-text {
-            position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
-            font-size: 48px; font-weight: bold; z-index: 200; opacity: 0; transition: opacity 0.3s;
+        #win-screen h1 { font-size: 80px; color: var(--gold); text-shadow: 0 0 30px var(--gold); }
+        .restart-btn { 
+            margin-top: 50px; padding: 20px 50px; font-size: 28px; 
+            background: var(--neon-pink); border: none; color: white; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 0 20px var(--neon-pink);
         }
 
-        button { padding: 12px; font-size: 18px; cursor: pointer; border-radius: 10px; border: 2px solid #ddd; background: #f8f9fa; }
-        @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -98,11 +151,13 @@
     <audio id="win-sfx" src="https://actions.google.com/sounds/v1/cartoon/clapping_and_cheering_crowd.ogg"></audio>
 
     <div id="start-overlay">
-        <button class="start-btn" onclick="startGame()">點擊開始夾娃娃大賽！</button>
+        <button class="start-btn" onclick="startGame()">進入夜市拼音大賽 🏮</button>
     </div>
 
     <h1>🏮 夜市語文大賽：拼音夾夾樂 🏮</h1>
-    <div style="margin: 10px;">操作：← → 移動，空白鍵 [SPACE] 抓取</div>
+    <div style="margin-bottom: 15px; font-size: 1.1rem; color: #ccc;">
+        目標：收集所有美食！ 使用 <b>← →</b> 移動，<b>[SPACE]</b> 抓取
+    </div>
 
     <div id="game-window">
         <div id="feedback-text"></div>
@@ -112,161 +167,52 @@
             <div id="arm-left" class="arm"></div>
             <div id="arm-right" class="arm"></div>
         </div>
+        
         <div id="doll-pool"></div>
+
         <div id="shelf">
-            <span style="color: white; font-weight: bold;">戰利品：</span>
+            <span style="color: #ffd700; font-weight: bold; font-size: 1.2rem;">🏆 我的戰利品：</span>
         </div>
 
         <div id="quiz-overlay">
             <div class="quiz-card">
                 <img id="q-img" src="" alt="題目圖片">
-                <h2 id="q-title">這張圖的拼音是？</h2>
+                <h2 style="margin: 0; color: #555;">請選擇正確的拼音：</h2>
                 <div class="btn-group" id="q-options"></div>
             </div>
         </div>
     </div>
 
     <div id="win-screen">
-        <h1>🎉 太棒了！ 🎉</h1>
-        <p>您很厲害，繼續加有!</p>
-        <button onclick="location.reload()" style="margin-top: 40px; padding: 15px 30px; font-size: 20px;">重新挑戰</button>
+        <h1 id="win-title">🎊 完美的挑戰！ 🎊</h1>
+        <p style="font-size: 30px; color: white;">恭喜您集齊所有夜市美食娃娃！</p>
+        <button class="restart-btn" onclick="location.reload()">再次挑戰 🔄</button>
     </div>
 
     <script>
         const vocabData = [
-            {n: "雞排", img_url: "https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"},
-            {n: "珍珠奶茶", img_url: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", p: "zhēn zhū nǎi chá"},
-            {n: "香腸", img_url: "https://www.17life.com/Images/imagesU/1/110776/%E9%A6%AC%E5%91%8A%E9%A6%99%E8%85%B8_1000x1000.jpg", p: "xiāng cháng"},
-            {n: "蚵仔煎", img_url: "https://tse4.mm.bing.net/th/id/OIP.SzOOOok927fpenJsMe4GtwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3", p: "é á jiān"},
-            {n: "地瓜球", img_url: "https://tse1.explicit.bing.net/th/id/OIP.EQNs5ug8uxKPUjbc6ky_gAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", p: "dì guā qiú"},
-            {n: "小籠包", img_url: "https://faceatious.com/post/dumplings-xlb/dintaifung.jpg", p: "xiǎo lóng bāo"},
-            {n: "牛肉麵", img_url: "https://th.bing.com/th/id/R.4265dcc4173715f7a4cc13956c98ce1c?rik=0A3mphaZPen88g&riu=http%3a%2f%2fi0.hdslb.com%2fbfs%2farchive%2f0cd3d7e8d9f65854dcf61681e32f9a1c2ee6b09e.jpg&ehk=P0MFOIr%2fd2vEZFhBqAP%2b7QYqPgbXNx7MG1x8K539sdI%3d&risl=&pid=ImgRaw&r=0", p: "niú ròu miàn"},
-            {n: "芒果冰", img_url: "https://lazybag.app/wp-content/uploads/2023/06/20230628195239_73-1170x612.jpeg", p: "máng guǒ bīng"}
+            {n: "雞排", img: "https://media.zenfs.com/zh-tw/nownews.com/d118f83ad537fa75f3f62a9797f8d918", p: "jī pái"},
+            {n: "珍珠奶茶", img: "https://tse4.mm.bing.net/th/id/OIP.H27R9mFpJfDTnImd1RoSHQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3", p: "zhēn zhū nǎi chá"},
+            {n: "香腸", img: "https://www.17life.com/Images/imagesU/1/110776/%E9%A6%AC%E5%91%8A%E9%A6%99%E8%85%B8_1000x1000.jpg", p: "xiāng cháng"},
+            {n: "蚵仔煎", img: "https://tse4.mm.bing.net/th/id/OIP.SzOOOok927fpenJsMe4GtwHaE7?rs=1&pid=ImgDetMain&o=7&rm=3", p: "é á jiān"},
+            {n: "地瓜球", img: "https://tse1.explicit.bing.net/th/id/OIP.EQNs5ug8uxKPUjbc6ky_gAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", p: "dì guā qiú"},
+            {n: "小籠包", img: "https://faceatious.com/post/dumplings-xlb/dintaifung.jpg", p: "xiǎo lóng bāo"},
+            {n: "牛肉麵", img: "https://th.bing.com/th/id/R.4265dcc4173715f7a4cc13956c98ce1c?rik=0A3mphaZPen88g&riu=http%3a%2f%2fi0.hdslb.com%2fbfs%2farchive%2f0cd3d7e8d9f65854dcf61681e32f9a1c2ee6b09e.jpg&ehk=P0MFOIr%2fd2vEZFhBqAP%2b7QYqPgbXNx7MG1x8K539sdI%3d&risl=&pid=ImgRaw&r=0", p: "niú ròu miàn"},
+            {n: "芒果冰", img: "https://lazybag.app/wp-content/uploads/2023/06/20230628195239_73-1170x612.jpeg", p: "máng guǒ bīng"}
         ];
 
-        let clawX = 390;
+        let clawX = 380;
         let isMoving = false;
-        let totalCollected = 0; // 用來計數抓到了幾個
+        let totalCollected = 0;
         const clawContainer = document.getElementById('claw-container');
         const cable = document.getElementById('cable');
         const pool = document.getElementById('doll-pool');
 
-        // 音樂控制
         function startGame() {
             document.getElementById('start-overlay').style.display = 'none';
-            document.getElementById('bgm').play();
         }
 
-        // 初始化娃娃池
+        // 初始化娃娃 (增加隨機擺放感)
         vocabData.forEach((data, i) => {
             const d = document.createElement('div');
-            d.className = 'doll';
-            d.style.left = (40 + i * 95) + 'px';
-            d.style.top = '430px';
-            const img = document.createElement('img');
-            img.src = data.img_url;
-            d.appendChild(img);
-            d.dataset.name = data.n;
-            d.dataset.pinyin = data.p;
-            d.dataset.img = data.img_url;
-            pool.appendChild(d);
-        });
-
-        // 鍵盤監聽
-        window.addEventListener('keydown', (e) => {
-            if (isMoving || document.getElementById('quiz-overlay').style.display === 'flex' || document.getElementById('win-screen').style.display === 'flex') return;
-            if (e.key === 'ArrowLeft' && clawX > 20) clawX -= 20;
-            if (e.key === 'ArrowRight' && clawX < 740) clawX += 20;
-            if (e.key === ' ') startCatch();
-            clawContainer.style.left = clawX + 'px';
-            cable.style.left = (clawX + 9) + 'px';
-        });
-
-        function startCatch() {
-            isMoving = true;
-            document.getElementById('game-window').classList.add('grabbing');
-            clawContainer.style.top = '430px';
-            cable.style.height = '430px';
-
-            setTimeout(() => {
-                let caughtDoll = null;
-                document.querySelectorAll('.doll').forEach(d => {
-                    let dx = parseInt(d.style.left);
-                    if (Math.abs(dx - clawX) < 45) caughtDoll = d;
-                });
-                if (caughtDoll) {
-                    caughtDoll.style.top = '30px';
-                    caughtDoll.style.left = clawX + 'px';
-                }
-                clawContainer.style.top = '0px';
-                cable.style.height = '0px';
-                setTimeout(() => {
-                    document.getElementById('game-window').classList.remove('grabbing');
-                    if (caughtDoll) openQuiz(caughtDoll);
-                    else isMoving = false;
-                }, 1000);
-            }, 1000);
-        }
-
-        function openQuiz(doll) {
-            const overlay = document.getElementById('quiz-overlay');
-            const optionsBox = document.getElementById('q-options');
-            const qImg = document.getElementById('q-img');
-            const correctAnswer = doll.dataset.pinyin;
-            
-            qImg.src = doll.dataset.img;
-            overlay.style.display = 'flex';
-            optionsBox.innerHTML = '';
-
-            let otherPinyins = vocabData.map(item => item.p).filter(p => p !== correctAnswer);
-            otherPinyins.sort(() => Math.random() - 0.5);
-            let finalChoices = [correctAnswer, ...otherPinyins.slice(0, 2)].sort(() => Math.random() - 0.5);
-
-            finalChoices.forEach(choiceText => {
-                const btn = document.createElement('button');
-                btn.innerText = choiceText;
-                btn.onclick = () => {
-                    overlay.style.display = 'none';
-                    if (choiceText === correctAnswer) {
-                        showFeedback("✅ 正確！", "#2ecc71");
-                        collect(doll);
-                    } else {
-                        showFeedback("❌ 錯誤！", "#e74c3c");
-                        doll.style.top = '430px'; 
-                    }
-                    setTimeout(() => { 
-                        isMoving = false; 
-                        checkWin(); // 每次結束答題檢查是否全數抓完
-                    }, 1000);
-                };
-                optionsBox.appendChild(btn);
-            });
-        }
-
-        // 檢查勝利條件
-        function checkWin() {
-            if (totalCollected === vocabData.length) {
-                document.getElementById('bgm').pause(); // 停掉背景音
-                document.getElementById('win-sfx').play(); // 播歡呼音
-                document.getElementById('win-screen').style.display = 'flex';
-            }
-        }
-
-        function showFeedback(msg, color) {
-            const f = document.getElementById('feedback-text');
-            f.innerText = msg; f.style.color = color; f.style.opacity = "1";
-            setTimeout(() => { f.style.opacity = "0"; }, 1500);
-        }
-
-        function collect(doll) {
-            const shelf = document.getElementById('shelf');
-            const tag = document.createElement('div');
-            tag.className = 'collected-tag';
-            tag.innerText = doll.dataset.name;
-            shelf.appendChild(tag);
-            doll.remove();
-            totalCollected++; // 抓到數量 +1
-        }
-    </script>
-</body>
-</html>
+            d.className = '
